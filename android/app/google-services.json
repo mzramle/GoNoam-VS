@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "404868130577",
+    "project_id": "gonoam-v1",
+    "storage_bucket": "gonoam-v1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:404868130577:android:51279e8b70cfe1ca8d4eb0",
+        "android_client_info": {
+          "package_name": "com.example.gonoam_v1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPbVt3YaG46KwOCNKp7NvShhXKIPC_5Rw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
