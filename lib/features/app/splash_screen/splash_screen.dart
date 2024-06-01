@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:gonoam_v1/features/presentation/pages/login_page.dart';
 
 import '../../../helper/global.dart';
 
 class SplashScreen extends StatefulWidget {
-  final Widget? child;
-  const SplashScreen({super.key, this.child});
+  final Function? onInitializationComplete;
+
+  const SplashScreen({Key? key, this.onInitializationComplete})
+      : super(key: key);
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -13,13 +16,16 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => widget.child!),
-          (route) => false);
-    });
     super.initState();
+    _navigateToNextScreen();
+  }
+
+  void _navigateToNextScreen() async {
+    await Future.delayed(const Duration(seconds: 3));
+
+    if (widget.onInitializationComplete != null) {
+      widget.onInitializationComplete!();
+    }
   }
 
   @override

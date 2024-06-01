@@ -4,13 +4,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gonoam_v1/features/app/splash_screen/splash_screen.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
-import 'features/presentation/pages/history_translation.dart';
-import 'features/presentation/pages/home_page.dart';
 import 'features/presentation/pages/login_page.dart';
 import 'features/presentation/pages/sign_up_page.dart';
-import 'features/presentation/pages/voice_synthesis.dart';
-import 'helper/global.dart';
+import 'features/presentation/pages/user_profile/update_profile.dart';
+
+import 'features/presentation/widgets/app_bottom_navigation_bar.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,77 +29,49 @@ Future main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({
-    super.key,
-  });
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: appName,
+      title: 'GoNoam Translation',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const SplashScreen(
-              child: LoginPage(),
-            ),
-        '/login': (context) => const LoginPage(),
-        '/signup': (context) => const SignUpPage(),
-        '/home': (context) => const HomePage(),
-        '/history_translation': (context) => const HistoryTranslation(),
-        '/voice_synthesis': (context) => const VoiceSynthesis(),
-      },
+      initialRoute: '/splash',
+      getPages: [
+        GetPage(
+          name: '/splash',
+          page: () => SplashScreen(
+            onInitializationComplete: () {
+              Get.offNamed('/login');
+            },
+          ),
+        ),
+        GetPage(name: '/login', page: () => const LoginPage()),
+        GetPage(name: '/signup', page: () => const SignUpPage()),
+        GetPage(name: '/main', page: () => MainScreen()),
+        GetPage(name: '/update_profile', page: () => const UpdateProfilePage()),
+      ],
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class MainScreen extends StatelessWidget {
+  final PersistentTabController _controller =
+      PersistentTabController(initialIndex: 0);
 
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+    return PersistentTabView(
+      controller: _controller,
+      tabs: buildScreens(),
+      navBarBuilder: (navBarConfig) => Style1BottomNavBar(
+        navBarConfig: navBarConfig,
       ),
     );
   }

@@ -135,6 +135,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../controller/translator_controller.dart';
 import '../../../helper/global.dart';
@@ -188,6 +189,11 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    Get.offAllNamed('/login');
+  }
+
   @override
   Widget build(BuildContext context) {
     mq = MediaQuery.sizeOf(context);
@@ -195,6 +201,29 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('GoNoam Translation'),
+        automaticallyImplyLeading: false,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (String result) {
+              if (result == 'update_profile') {
+                Get.toNamed('/update_profile');
+              } else if (result == 'logout') {
+                _signOut();
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'update_profile',
+                child: Text('Update Profile'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'logout',
+                child: Text('Log Out'),
+              ),
+            ],
+            icon: const Icon(Icons.person),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -299,16 +328,6 @@ class _HomePageState extends State<HomePage> {
         child: const Icon(Icons.mic),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      bottomNavigationBar: BottomNavigationBarWidget(
-        selectedIndex: 0, // Home page is selected
-        onItemSelected: (index) {
-          // Handle navigation to other pages
-          if (index == 0) return; // Already in home page
-          if (index == 1) {
-            Get.offNamed('/history_translation');
-          } else if (index == 2) Get.offNamed('/voice_synthesis');
-        },
-      ),
     );
   }
 

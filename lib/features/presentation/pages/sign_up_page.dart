@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gonoam_v1/features/presentation/pages/login_page.dart';
 import 'package:gonoam_v1/features/presentation/widgets/form_container_widget.dart';
+import 'package:gonoam_v1/helper/toast.dart';
 
 import '../../user_auth/firebase_auth_implementation/firebase_auth_services.dart';
 
@@ -13,6 +14,8 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  bool _isSigningUp = false;
+
   final FirebaseAuthService _auth = FirebaseAuthService();
 
   final TextEditingController _usernameController = TextEditingController();
@@ -90,15 +93,19 @@ class _SignUpPageState extends State<SignUpPage> {
                       color: Colors.blue,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Center(
-                      child: Text(
-                        "Sign Up",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    child: Center(
+                      child: _isSigningUp
+                          ? const CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                          : const Text(
+                              "Sign Up",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
                   ),
                 ),
@@ -138,17 +145,24 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   void _signUp() async {
+    setState(() {
+      _isSigningUp = true;
+    });
+
     String username = _usernameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
 
     User? user = await _auth.signUpWithEmailAndPassword(email, password);
 
+    setState(() {
+      _isSigningUp = false;
+    });
     if (user != null) {
-      print("User is successfully created");
-      Navigator.pushNamed(context, '/home');
+      showToast(message: "User is successfully created");
+      Navigator.pushNamed(context, '/login');
     } else {
-      print("Some error happened");
+      showToast(message: "Some error happened");
     }
   }
 }

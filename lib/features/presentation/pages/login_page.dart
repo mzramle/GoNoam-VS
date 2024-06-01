@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gonoam_v1/features/presentation/pages/sign_up_page.dart';
 import 'package:gonoam_v1/features/presentation/widgets/form_container_widget.dart';
+import 'package:gonoam_v1/helper/toast.dart';
+import 'package:gonoam_v1/main.dart';
 
 import '../../user_auth/firebase_auth_implementation/firebase_auth_services.dart';
 import 'home_page.dart';
@@ -13,6 +16,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  bool _isSigningIn = false;
+
   final FirebaseAuthService _auth = FirebaseAuthService();
 
   final TextEditingController _emailController = TextEditingController();
@@ -53,45 +58,40 @@ class _LoginPageState extends State<LoginPage> {
                     style:
                         TextStyle(fontSize: 27, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 20),
-                const FormContainerWidget(
+                FormContainerWidget(
+                  controller: _emailController,
                   hintText: "Email",
                   isPasswordField: false,
                 ),
                 const SizedBox(
                   height: 10,
                 ),
-                const FormContainerWidget(
+                FormContainerWidget(
+                  controller: _passwordController,
                   hintText: "Password",
                   isPasswordField: true,
                 ),
                 const SizedBox(height: 30),
                 GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomePage()));
-                  },
+                  onTap: _signIn,
                   child: Container(
                     width: double.infinity,
                     height: 45,
-                    // child: ElevatedButton(
-                    //   onPressed: () {},
-                    //   child: Text("Login"),
-                    // ),
                     decoration: BoxDecoration(
                       color: Colors.blue,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Center(
-                      child: Text(
-                        "Login",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    child: Center(
+                      child: _isSigningIn
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              "Login",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
                   ),
                 ),
@@ -128,5 +128,36 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ));
+  }
+
+  void _signIn() async {
+    setState(() {
+      _isSigningIn = true;
+    });
+
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    try {
+      User? user = await _auth.signInWithEmailAndPassword(email, password);
+
+      setState(() {
+        _isSigningIn = false;
+      });
+
+      if (user != null) {
+        showToast(message: "User is successfully signed in");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainScreen(),
+          ),
+        );
+      } else {
+        showToast(message: "Try again");
+      }
+    } catch (e) {
+      showToast(message: "Error: $e");
+    }
   }
 }
