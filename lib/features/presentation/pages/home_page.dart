@@ -139,7 +139,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../controller/translator_controller.dart';
 import '../../../helper/global.dart';
-import '../widgets/app_bottom_navigation_bar.dart';
 import '../widgets/custom_btn.dart';
 import '../widgets/custom_loading.dart';
 import '../widgets/language_sheet.dart';
@@ -173,20 +172,10 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _speakOriginalText() async {
-    if (_c.textC.text.isNotEmpty) {
-      await flutterTts.setLanguage('en');
-      await flutterTts.setPitch(1);
-      await flutterTts.speak(_c.textC.text);
-    }
-  }
-
-  Future<void> _speakTranslatedText() async {
-    if (_c.resultC.text.isNotEmpty) {
-      await flutterTts.setLanguage(_c.to.value);
-      await flutterTts.setPitch(1);
-      await flutterTts.speak(_c.resultC.text);
-    }
+  Future<void> _speakText(String text, String languageCode) async {
+    await flutterTts.setLanguage(languageCode);
+    await flutterTts.setPitch(1);
+    await flutterTts.speak(text);
   }
 
   Future<void> _signOut() async {
@@ -305,7 +294,8 @@ class _HomePageState extends State<HomePage> {
                         bottom: 0,
                         right: 0,
                         child: IconButton(
-                          onPressed: _speakOriginalText,
+                          onPressed: () => _speakText(_c.textC.text,
+                              _c.from.value.isEmpty ? 'en' : _c.from.value),
                           icon: const Icon(Icons.volume_up),
                         ),
                       ),
@@ -317,7 +307,7 @@ class _HomePageState extends State<HomePage> {
                 CustomBtn(
                   onTap: _c.googleTranslate,
                   text: 'Translate',
-                )
+                ),
               ],
             ),
           ),
@@ -365,7 +355,7 @@ class _HomePageState extends State<HomePage> {
                       icon: const Icon(Icons.copy),
                     ),
                     IconButton(
-                      onPressed: _speakTranslatedText,
+                      onPressed: () => _speakText(_c.resultC.text, _c.to.value),
                       icon: const Icon(Icons.volume_up),
                     ),
                   ],

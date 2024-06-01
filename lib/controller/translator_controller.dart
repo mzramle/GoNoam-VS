@@ -233,7 +233,30 @@ class TranslateController extends GetxController {
       final t = to.value;
       to.value = from.value;
       from.value = t;
+
+      // Swap the text in the text fields
+      final tempText = textC.text;
+      textC.text = resultC.text;
+      resultC.text = tempText;
     }
+  }
+
+  void autoDetectSourceLanguage() {
+    // Logic to detect the language based on the input text
+    // You can use a library or API to detect the language
+    // For simplicity, assume we have a function detectLanguage(text)
+    final detectedLanguage = detectLanguage(textC.text);
+    if (detectedLanguage.isNotEmpty) {
+      from.value = detectedLanguage;
+    }
+  }
+
+  String detectLanguage(String text) {
+    // Implement your language detection logic here
+    // Return the detected language code
+    // For example, return 'en' for English, 'fr' for French, etc.
+    // You can use a package like 'language' or call an API like Google Cloud Translation
+    return 'en'; // Placeholder
   }
 
   Future<void> googleTranslate() async {
