@@ -139,6 +139,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../controller/translator_controller.dart';
 import '../../../helper/global.dart';
+import '../../../helper/toast.dart';
 import '../widgets/custom_btn.dart';
 import '../widgets/custom_loading.dart';
 import '../widgets/language_sheet.dart';
@@ -158,8 +159,8 @@ class _HomePageState extends State<HomePage> {
   void _startListening() async {
     if (!_speech.isListening) {
       bool available = await _speech.initialize(
-        onStatus: (status) => print('status: $status'),
-        onError: (error) => print('error: $error'),
+        onStatus: (status) => showToast(message: 'status: $status'),
+        onError: (error) => showErrorToast('error: $error'),
       );
 
       if (available) {
@@ -198,6 +199,10 @@ class _HomePageState extends State<HomePage> {
                 Get.toNamed('/update_profile');
               } else if (result == 'logout') {
                 _signOut();
+              } else if (result == 'settings') {
+                Get.toNamed('/settings');
+              } else if (result == 'example_crd') {
+                Get.toNamed('/example_crd');
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -208,6 +213,14 @@ class _HomePageState extends State<HomePage> {
               const PopupMenuItem<String>(
                 value: 'logout',
                 child: Text('Log Out'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'settings',
+                child: Text('Setting'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'example_crd',
+                child: Text('Example CRD'),
               ),
             ],
             icon: const Icon(Icons.person),

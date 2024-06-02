@@ -2,7 +2,7 @@
     <application
         android:label="gonoam_v1"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/gonoam_launcher_icon">
         <activity
             android:name=".MainActivity"
             android:exported="true"

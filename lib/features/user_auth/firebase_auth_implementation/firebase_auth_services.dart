@@ -53,9 +53,9 @@ class FirebaseAuthService {
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
-        showToast(message: 'The email address is already in use.');
+        showWarningToast('The email address is already in use.');
       } else {
-        showToast(message: 'Some error occurred: ${e.code}');
+        showErrorToast('Some error occurred: ${e.code}');
       }
     }
     return null;
@@ -69,9 +69,9 @@ class FirebaseAuthService {
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-credential') {
-        showToast(message: 'Invalid email or password.');
+        showErrorToast('Invalid email or password.');
       } else {
-        showToast(message: 'An error occurred: ${e.code}');
+        showErrorToast('An error occurred: ${e.code}');
       }
     }
     return null;

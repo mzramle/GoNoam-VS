@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gonoam_v1/features/app/splash_screen/splash_screen.dart';
+import 'package:gonoam_v1/features/presentation/pages/crud_page.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 import 'features/presentation/pages/login_page.dart';
@@ -24,6 +26,10 @@ Future main() async {
           projectId: 'gonoam-v1',
         ))
       : await Firebase.initializeApp();
+  await FirebaseAppCheck.instance.activate(
+    webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
+    androidProvider: AndroidProvider.debug,
+  );
 
   runApp(const MyApp());
 }
@@ -54,6 +60,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/signup', page: () => const SignUpPage()),
         GetPage(name: '/main', page: () => MainScreen()),
         GetPage(name: '/update_profile', page: () => const UpdateProfilePage()),
+        GetPage(name: '/example_crd', page: () => const CRUDPage()),
       ],
     );
   }

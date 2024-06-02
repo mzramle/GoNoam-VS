@@ -158,11 +158,11 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() {
       _isSigningUp = false;
     });
-    if (user != null) {
-      showToast(message: "User is successfully created");
+    if (user != null && mounted) {
+      showSuccessToast("User is successfully created");
       Navigator.pushNamed(context, '/login');
     } else {
-      showToast(message: "Some error happened");
+      showErrorToast("Some error happened");
     }
   }
 }

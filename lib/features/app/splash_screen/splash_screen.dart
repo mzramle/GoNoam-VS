@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gonoam_v1/features/presentation/pages/login_page.dart';
-
 import '../../../helper/global.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -32,15 +30,30 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     mq = MediaQuery.sizeOf(context);
 
-    return const Scaffold(
-      body: Center(
-        child: Text(
-          "Welcome To GoNoam",
-          style: TextStyle(
-            color: Colors.blue,
-            fontWeight: FontWeight.bold,
+    return Scaffold(
+      body: Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  'assets/images/GoNoam_bg_L.png',
+                  fit: BoxFit.cover,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Welcome To GoNoam",
+                  style: TextStyle(
+                    color: Colors.indigoAccent,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
