@@ -18,7 +18,7 @@
 //   final _addressController = TextEditingController();
 //   final _ageController = TextEditingController();
 
-//   final UserController _userController = UserController();
+//   final UserController _userTestCRUDController = UserController();
 
 //   @override
 //   Widget build(BuildContext context) {
@@ -100,7 +100,7 @@
 //               ElevatedButton(
 //                 onPressed: () async {
 //                   try {
-//                     await _userController.addUser(UserModel(
+//                     await _userTestCRUDController.addUser(UserModel(
 //                       username: _usernameController.text,
 //                       address: _addressController.text,
 //                       age: int.parse(_ageController.text),
@@ -147,7 +147,7 @@
 //                     fontWeight: FontWeight.bold,
 //                   )),
 //               StreamBuilder<List<UserModel>>(
-//                 stream: _userController.getUserDataStream(),
+//                 stream: _userTestCRUDController.getUserDataStream(),
 //                 builder: (context, snapshot) {
 //                   if (snapshot.connectionState == ConnectionState.waiting) {
 //                     return const Center(child: CircularProgressIndicator());
@@ -186,11 +186,12 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:gonoam_v1/controller/user_controller.dart';
+import 'package:gonoam_v1/controller/user_crud_controller.dart';
 import 'package:gonoam_v1/helper/toast.dart';
 
 import '../../../model/user_crud_model.dart';
 import '../widgets/form_container_widget.dart';
+import 'user_crud_update_page.dart';
 
 class CRUDPage extends StatefulWidget {
   const CRUDPage({super.key});
@@ -204,7 +205,8 @@ class _CRUDPageState extends State<CRUDPage> {
   final _addressController = TextEditingController();
   final _ageController = TextEditingController();
 
-  final UserController _userController = UserController();
+  final UserCrudTestController _userTestCRUDController =
+      UserCrudTestController();
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +224,7 @@ class _CRUDPageState extends State<CRUDPage> {
               mainAxisSize: MainAxisSize.min, // Center the column vertically
               children: [
                 const Text(
-                  'CRUD',
+                  'Create User',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 18,
@@ -231,14 +233,17 @@ class _CRUDPageState extends State<CRUDPage> {
                 FormContainerWidget(
                   controller: _usernameController,
                   hintText: "Username",
+                  fieldName: "Username",
                 ),
                 FormContainerWidget(
                   controller: _addressController,
                   hintText: "Address",
+                  fieldName: "Address",
                 ),
                 FormContainerWidget(
                   controller: _ageController,
                   hintText: "Age",
+                  fieldName: "Age",
                 ),
                 const SizedBox(
                   height: 15,
@@ -247,7 +252,10 @@ class _CRUDPageState extends State<CRUDPage> {
                   onPressed: () async {
                     try {
                       final firestore = FirebaseFirestore.instance;
-                      await firestore.collection("users").doc("1").set({
+                      await firestore
+                          .collection("users_test_crud")
+                          .doc("1")
+                          .set({
                         "name": "John Doe",
                         "age": 30,
                         "email": "ade@gmail.com",
@@ -287,7 +295,7 @@ class _CRUDPageState extends State<CRUDPage> {
                 ElevatedButton(
                   onPressed: () async {
                     try {
-                      await _userController.addUser(UserModel(
+                      await _userTestCRUDController.addUser(UserTestCrudModel(
                         username: _usernameController.text,
                         address: _addressController.text,
                         age: int.parse(_ageController.text),
@@ -333,9 +341,13 @@ class _CRUDPageState extends State<CRUDPage> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                     )),
-                StreamBuilder<List<UserModel>>(
-                  stream: _userController.getUserDataStream(),
+                StreamBuilder<List<UserTestCrudModel>>(
+                  //StreamBuilder is a widget that listens to a stream and rebuilds itself when the stream emits an event.
+                  //Listens to a change in UserModel state
+                  stream: _userTestCRUDController
+                      .getUserDataStream(), // Stream takes list of data UserController object, _userTestCRUDController to get the getUserDataStream() for read.
                   builder: (context, snapshot) {
+                    // Snapshot takes latest interaction with asyncschronous state
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     }
@@ -352,16 +364,56 @@ class _CRUDPageState extends State<CRUDPage> {
                         (user) {
                           return ListTile(
                             leading: GestureDetector(
+                              onTap: () async {
+                                if (user.id != null) {
+                                  try {
+                                    await _userTestCRUDController
+                                        .deleteUser(user.id!);
+                                    showSuccessToast(
+                                        'User deleted successfully');
+                                  } catch (e) {
+                                    showErrorToast('Failed to delete user: $e');
+                                  }
+                                } else {
+                                  showErrorToast('User ID is null');
+                                }
+                              },
                               child: const Icon(Icons.delete),
                             ),
                             trailing: GestureDetector(
+                              // for immediate testing to see if users data will be updated
+                              // Commented because only the update page will be used for updating user data
+                              // based on user inputs.
+                              // onTap: () {
+                              //   _userTestCRUDController.updateUser(
+                              //     UserModel(
+                              //       username: _usernameController.text,
+                              //       address: _addressController.text,
+                              //       age: int.parse(_ageController.text),
+                              //       id: user.id,
+                              //     ),
+                              //   );
+                              // },
+                              onTap: () {
+                                if (user.id != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          UpdateUserPage(userId: user.id!),
+                                    ),
+                                  );
+                                } else {
+                                  showErrorToast('User ID is null');
+                                }
+                              },
                               child: const Icon(Icons.update),
                             ),
                             title: Text(user.username!),
                             subtitle: Text(user.address!),
                           );
                         },
-                      ).toList(),
+                      ).toList(), // Used toList() because the widget type is ListTile convert it into a list
                     );
                   },
                 ),

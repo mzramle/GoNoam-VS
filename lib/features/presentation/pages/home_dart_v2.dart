@@ -8,7 +8,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../controller/translator_controller.dart';
 import '../../../helper/global.dart';
-import '../widgets/app_bottom_navigation_bar.dart';
 import '../widgets/custom_btn.dart';
 import '../widgets/custom_loading.dart';
 import '../widgets/language_sheet.dart';

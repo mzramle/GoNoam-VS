@@ -11,22 +11,31 @@ class FormContainerWidget extends StatefulWidget {
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onFieldSubmitted;
   final TextInputType? inputType;
+  final bool enabled;
+  final bool showError;
+  final String? fieldName;
+  final ValueChanged<String>? onChanged;
 
-  const FormContainerWidget(
-      {super.key,
-      this.controller,
-      this.isPasswordField,
-      this.fieldKey,
-      this.hintText,
-      this.labelText,
-      this.helperText,
-      this.onSaved,
-      this.validator,
-      this.onFieldSubmitted,
-      this.inputType});
+  const FormContainerWidget({
+    super.key,
+    this.controller,
+    this.isPasswordField,
+    this.fieldKey,
+    this.hintText,
+    this.labelText,
+    this.helperText,
+    this.onSaved,
+    this.validator,
+    this.onFieldSubmitted,
+    this.inputType,
+    this.enabled = true,
+    this.showError = false,
+    this.fieldName,
+    this.onChanged,
+  });
 
   @override
-  _FormContainerWidgetState createState() => _FormContainerWidgetState();
+  State<FormContainerWidget> createState() => _FormContainerWidgetState();
 }
 
 class _FormContainerWidgetState extends State<FormContainerWidget> {
@@ -34,50 +43,71 @@ class _FormContainerWidgetState extends State<FormContainerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(.35),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: TextFormField(
-        style: const TextStyle(color: Colors.black),
-        controller: widget.controller,
-        keyboardType: widget.inputType,
-        key: widget.fieldKey,
-        obscureText: widget.isPasswordField == true ? _obscureText : false,
-        onSaved: widget.onSaved,
-        validator: widget.validator,
-        onFieldSubmitted: widget.onFieldSubmitted,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          filled: true,
-          hintText: widget.hintText,
-          hintStyle: const TextStyle(color: Colors.black45),
-          enabledBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.white),
-            borderRadius: BorderRadius.circular(12),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (widget.fieldName != null)
+          Text(
+            widget.fieldName!,
+            style: const TextStyle(color: Color(0xFF4E0189), fontSize: 16),
           ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.blueAccent),
-            borderRadius: BorderRadius.circular(12),
+        if (widget.fieldName != null) const SizedBox(height: 5),
+        Container(
+          width: double.infinity,
+          clipBehavior: Clip.hardEdge,
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(.35),
+            borderRadius: BorderRadius.circular(10),
           ),
-          suffixIcon: GestureDetector(
-            onTap: () {
-              setState(() {
-                _obscureText = !_obscureText;
-              });
-            },
-            child: widget.isPasswordField == true
-                ? Icon(
-                    _obscureText ? Icons.visibility_off : Icons.visibility,
-                    color: _obscureText == false ? Colors.blue : Colors.grey,
-                  )
-                : const Text(""),
+          child: TextFormField(
+            style: const TextStyle(color: Colors.black),
+            controller: widget.controller,
+            keyboardType: widget.inputType,
+            key: widget.fieldKey,
+            obscureText: widget.isPasswordField == true ? _obscureText : false,
+            onSaved: widget.onSaved,
+            validator: widget.validator,
+            onFieldSubmitted: widget.onFieldSubmitted,
+            onChanged: widget.onChanged,
+            enabled: widget.enabled,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              filled: true,
+              hintText: widget.hintText,
+              hintStyle: const TextStyle(color: Colors.black45),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                    color: widget.showError ? Colors.red : Colors.white),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                    color: widget.showError ? Colors.red : Colors.blueAccent),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              suffixIcon: widget.isPasswordField == true
+                  ? GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                      child: Icon(
+                        _obscureText ? Icons.visibility_off : Icons.visibility,
+                        color:
+                            _obscureText == false ? Colors.blue : Colors.grey,
+                      ),
+                    )
+                  : null,
+            ),
           ),
         ),
-      ),
+        if (widget.showError)
+          const Text(
+            'Passwords do not match',
+            style: TextStyle(color: Colors.red, fontSize: 12),
+          ),
+      ],
     );
   }
 }

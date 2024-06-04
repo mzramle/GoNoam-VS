@@ -78,7 +78,7 @@ import '../pages/voice_synthesis.dart';
 List<PersistentTabConfig> buildScreens() {
   return [
     PersistentTabConfig(
-      screen: const HomePage(),
+      screen: HomePage(),
       item: ItemConfig(
         icon: const Icon(Icons.home),
         title: "Home",

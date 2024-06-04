@@ -30,7 +30,6 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class VoiceSynthesis extends StatelessWidget {
   const VoiceSynthesis({Key? key}) : super(key: key);

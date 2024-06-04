@@ -140,12 +140,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../controller/translator_controller.dart';
 import '../../../helper/global.dart';
 import '../../../helper/toast.dart';
-import '../widgets/custom_btn.dart';
 import '../widgets/custom_loading.dart';
 import '../widgets/language_sheet.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -190,13 +191,15 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('GoNoam Translation'),
+        title: const Text('GoNoam Translation',
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.blue,
         automaticallyImplyLeading: false,
         actions: [
           PopupMenuButton<String>(
             onSelected: (String result) {
-              if (result == 'update_profile') {
-                Get.toNamed('/update_profile');
+              if (result == 'user_profile') {
+                Get.toNamed('/user_profile');
               } else if (result == 'logout') {
                 _signOut();
               } else if (result == 'settings') {
@@ -207,8 +210,8 @@ class _HomePageState extends State<HomePage> {
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
-                value: 'update_profile',
-                child: Text('Update Profile'),
+                value: 'user_profile',
+                child: Text('User Profile'),
               ),
               const PopupMenuItem<String>(
                 value: 'logout',
@@ -223,7 +226,7 @@ class _HomePageState extends State<HomePage> {
                 child: Text('Example CRD'),
               ),
             ],
-            icon: const Icon(Icons.person),
+            icon: const Icon(Icons.person, color: Colors.white),
           ),
         ],
       ),
@@ -320,9 +323,20 @@ class _HomePageState extends State<HomePage> {
                 Column(
                   children: [
                     ElevatedButton(
-                      onPressed: _c.googleTranslate,
-                      child: const Text('Translate'),
-                    ),
+                        onPressed: _c.googleTranslate,
+                        style: ButtonStyle(
+                          foregroundColor:
+                              MaterialStateProperty.all<Color>(Colors.white),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              const Color.fromARGB(255, 255, 123, 0)),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.0),
+                            ),
+                          ),
+                        ),
+                        child: const Text('Translate')),
                   ],
                 ),
               ],

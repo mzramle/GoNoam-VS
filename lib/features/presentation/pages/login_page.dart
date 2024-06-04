@@ -58,6 +58,7 @@ class _LoginPageState extends State<LoginPage> {
                       controller: _emailController,
                       hintText: "Email",
                       isPasswordField: false,
+                      fieldName: "Email Address",
                     ),
                     const SizedBox(
                       height: 10,
@@ -66,6 +67,7 @@ class _LoginPageState extends State<LoginPage> {
                       controller: _passwordController,
                       hintText: "Password",
                       isPasswordField: true,
+                      fieldName: 'Password',
                     ),
                     const SizedBox(height: 30),
                     Padding(
@@ -87,21 +89,21 @@ class _LoginPageState extends State<LoginPage> {
                             child: const Text(
                               'Forgot Password?',
                               style: TextStyle(
-                                  color: Colors.blue,
+                                  color: Color.fromARGB(255, 255, 123, 0),
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 20),
                     GestureDetector(
                       onTap: _signIn,
                       child: Container(
                         width: double.infinity,
                         height: 45,
                         decoration: BoxDecoration(
-                          color: Colors.blue,
+                          color: const Color.fromARGB(255, 255, 123, 0),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
@@ -141,12 +143,15 @@ class _LoginPageState extends State<LoginPage> {
                           child: const Text(
                             "Sign Up",
                             style: TextStyle(
-                              color: Colors.blue,
+                              color: Color.fromARGB(255, 255, 123, 0),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(
+                      height: 10,
                     ),
                   ],
                 ),
@@ -173,7 +178,7 @@ class _LoginPageState extends State<LoginPage> {
 
       if (user != null && mounted) {
         showSuccessToast("User is successfully signed in");
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => MainScreen(),
@@ -183,6 +188,9 @@ class _LoginPageState extends State<LoginPage> {
         showToast(message: "Try again");
       }
     } catch (e) {
+      setState(() {
+        _isSigningIn = false;
+      });
       showErrorToast("Error: $e");
     }
   }
