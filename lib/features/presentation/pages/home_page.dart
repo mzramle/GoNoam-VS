@@ -317,9 +317,13 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Obx(() => _translateResult()),
                 SizedBox(height: mq.height * .04),
-                CustomBtn(
-                  onTap: _c.googleTranslate,
-                  text: 'Translate',
+                Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: _c.googleTranslate,
+                      child: const Text('Translate'),
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -171,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
         _isSigningIn = false;
       });
 
-      if (user != null) {
+      if (user != null && mounted) {
         showSuccessToast("User is successfully signed in");
         Navigator.push(
           context,
