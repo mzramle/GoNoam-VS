@@ -373,7 +373,7 @@ class _HomePageState extends State<HomePage> {
               ),
               Positioned(
                 bottom: 0,
-                right: 0,
+                right: 50,
                 child: Row(
                   children: [
                     IconButton(

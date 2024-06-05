@@ -6,8 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gonoam_v1/features/app/splash_screen/splash_screen.dart';
 import 'package:gonoam_v1/features/presentation/pages/crud_page.dart';
+import 'package:gonoam_v1/features/presentation/pages/voice_synthesis.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
+import 'features/presentation/pages/favorite_translation_page.dart';
+import 'features/presentation/pages/history_translation_page.dart';
 import 'features/presentation/pages/login_page.dart';
 import 'features/presentation/pages/sign_up_page.dart';
 import 'features/presentation/pages/user_profile/user_profile_page.dart';
@@ -59,22 +62,16 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/login', page: () => const LoginPage()),
         GetPage(name: '/signup', page: () => const SignUpPage()),
         GetPage(name: '/main', page: () => MainScreen()),
-        // GetPage(
-        //   name: '/main',
-        //   page: () {
-        //     String? userId = Get.parameters['userId'];
-        //     return MainScreen(userId: userId!);
-        //   },
-        // ),
         GetPage(name: '/user_profile', page: () => const UserProfilePage()),
-        // GetPage(
-        //   name: '/user_profile',
-        //   page: () {
-        //     String? userId = Get.parameters['userId'];
-        //     return UserProfilePage(userId: userId!);
-        //   },
-        // ),
         GetPage(name: '/example_crd', page: () => const CRUDPage()),
+        GetPage(
+            name: '/history_translation_page',
+            page: () => const HistoryTranslationPage()),
+        GetPage(
+            name: '/favorite_translation_page',
+            page: () => const FavoriteTranslationPage()),
+        GetPage(
+            name: '/voice_synthesis_page', page: () => const VoiceSynthesis()),
       ],
     );
   }
@@ -83,10 +80,6 @@ class MyApp extends StatelessWidget {
 class MainScreen extends StatelessWidget {
   final PersistentTabController _controller =
       PersistentTabController(initialIndex: 0);
-  //final String userId;
-
-  //MainScreen({super.key, required this.userId});
-
   MainScreen({super.key});
 
   @override
@@ -94,7 +87,7 @@ class MainScreen extends StatelessWidget {
     return PersistentTabView(
       controller: _controller,
       tabs: buildScreens(),
-      navBarBuilder: (navBarConfig) => Style1BottomNavBar(
+      navBarBuilder: (navBarConfig) => Style3BottomNavBar(
         navBarConfig: navBarConfig,
       ),
     );
