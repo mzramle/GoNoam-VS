@@ -151,11 +151,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gonoam_v1/features/presentation/widgets/form_container_widget.dart';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:gonoam_v1/features/presentation/widgets/form_container_widget.dart';
 import 'package:gonoam_v1/helper/toast.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -210,18 +205,34 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Future<void> updateUserProfile() async {
     try {
-      // Validate current password
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        showErrorToast('No user currently signed in');
+        return;
+      }
+
+      // Validate current password by reauthenticating
       final credential = EmailAuthProvider.credential(
-        email: currentUser!.email!,
+        email: user.email!,
         password: _currentPasswordController.text,
       );
-      await currentUser?.reauthenticateWithCredential(credential);
+      await user.reauthenticateWithCredential(credential);
 
-      // Update user profile
-      final user = FirebaseAuth.instance.currentUser;
+      // Update email if it has changed
+      if (_emailController.text.trim() != user.email) {
+        await user.updateEmail(_emailController.text.trim());
+        await user.sendEmailVerification();
+      }
+
+      // Update password if new password is provided
+      if (_newPasswordController.text.isNotEmpty) {
+        await user.updatePassword(_newPasswordController.text);
+      }
+
+      // Update Firestore document
       await FirebaseFirestore.instance
           .collection('users')
-          .doc(user!.uid)
+          .doc(user.uid)
           .update({
         'username': _usernameController.text.trim(),
         'email': _emailController.text.trim(),
@@ -229,11 +240,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
       showSuccessToast('User profile updated successfully');
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'invalid-credential') {
+      if (e.code == 'wrong-password') {
         showErrorToast('Invalid current password');
       } else {
-        showErrorToast('Failed to update user profile');
+        showErrorToast('Failed to update user profile: ${e.message}');
       }
+    } catch (e) {
+      showErrorToast('An unexpected error occurred: $e');
     }
   }
 
@@ -241,16 +254,26 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('User Profile'),
+        title:
+            const Text('User Profile', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
         actions: [
           Row(
             children: [
               Text(
                 _isEditing ? 'Done' : 'Edit',
-                style: const TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16, color: Colors.white),
               ),
               IconButton(
-                icon: Icon(_isEditing ? Icons.done : Icons.edit),
+                icon: Icon(_isEditing
+                    ? Icons.done_outline_rounded
+                    : Icons.edit_document),
+                style: ButtonStyle(
+                  foregroundColor:
+                      MaterialStateProperty.all<Color>(Colors.white),
+                  iconSize: MaterialStateProperty.all<double>(25),
+                ),
                 onPressed: () {
                   setState(() {
                     _isEditing = !_isEditing;

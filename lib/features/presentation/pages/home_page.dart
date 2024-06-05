@@ -204,9 +204,10 @@ class _HomePageState extends State<HomePage> {
                 _signOut();
               } else if (result == 'settings') {
                 Get.toNamed('/settings');
-              } else if (result == 'example_crd') {
-                Get.toNamed('/example_crd');
               }
+              // } else if (result == 'example_crd') {
+              //   Get.toNamed('/example_crd');
+              // }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
@@ -221,10 +222,10 @@ class _HomePageState extends State<HomePage> {
                 value: 'settings',
                 child: Text('Setting'),
               ),
-              const PopupMenuItem<String>(
-                value: 'example_crd',
-                child: Text('Example CRD'),
-              ),
+              // const PopupMenuItem<String>(
+              //   value: 'example_crd',
+              //   child: Text('Example CRD'),
+              // ),
             ],
             icon: const Icon(Icons.person, color: Colors.white),
           ),
@@ -346,6 +347,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _startListening,
+        heroTag: 'home_page_v1_voice_input',
         child: const Icon(Icons.mic),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

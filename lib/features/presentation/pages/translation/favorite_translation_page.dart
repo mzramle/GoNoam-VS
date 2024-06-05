@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../model/translation_model.dart';
-import '../widgets/translation_box.dart';
+import '../../../../model/translation_model.dart';
+import '../../widgets/translation_box.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class FavoriteTranslationPage extends StatefulWidget {
@@ -179,6 +179,7 @@ class _FavoriteTranslationPageState extends State<FavoriteTranslationPage> {
           'Delete',
           style: TextStyle(fontSize: 16, color: Colors.white),
         ),
+        heroTag: 'favorite_translation_Del',
       ),
     );
   }

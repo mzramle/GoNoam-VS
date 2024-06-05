@@ -55,6 +55,7 @@ dependencies:
   html: ^0.15.4
   persistent_bottom_nav_bar_v2: ^5.2.3
   google_fonts: ^6.2.1
+  flutter_sound: ^9.4.15
 
 flutter_launcher_icons:
   android: "gonoam_launcher_icon"

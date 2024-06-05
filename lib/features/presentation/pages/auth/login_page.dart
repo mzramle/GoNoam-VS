@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gonoam_v1/features/presentation/pages/sign_up_page.dart';
+import 'package:gonoam_v1/features/presentation/pages/auth/sign_up_page.dart';
 import 'package:gonoam_v1/features/presentation/widgets/form_container_widget.dart';
 import 'package:gonoam_v1/helper/toast.dart';
 import 'package:gonoam_v1/main.dart';
 
-import '../../user_auth/firebase_auth_implementation/firebase_auth_services.dart';
+import '../../../user_auth/firebase_auth_implementation/firebase_auth_services.dart';
 import 'forgot_pw_page.dart';
 
 class LoginPage extends StatefulWidget {

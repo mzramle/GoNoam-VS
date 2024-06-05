@@ -71,10 +71,10 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
-import '../pages/favorite_translation_page.dart';
-import '../pages/history_translation_page.dart';
+import '../pages/translation/favorite_translation_page.dart';
+import '../pages/translation/history_translation_page.dart';
 import '../pages/home_page.dart';
-import '../pages/voice_synthesis.dart';
+import '../pages/voice_synthesis/voice_synthesis_main_page.dart';
 
 List<PersistentTabConfig> buildScreens() {
   return [
@@ -100,7 +100,7 @@ List<PersistentTabConfig> buildScreens() {
       ),
     ),
     PersistentTabConfig(
-      screen: const VoiceSynthesis(),
+      screen: const VoiceSynthesisMainPage(),
       item: ItemConfig(
         icon: const Icon(Icons.record_voice_over),
         title: "Voice",

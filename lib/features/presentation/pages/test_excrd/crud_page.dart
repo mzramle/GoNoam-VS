@@ -189,8 +189,8 @@ import 'package:flutter/material.dart';
 import 'package:gonoam_v1/controller/user_crud_controller.dart';
 import 'package:gonoam_v1/helper/toast.dart';
 
-import '../../../model/user_crud_model.dart';
-import '../widgets/form_container_widget.dart';
+import '../../../../model/user_crud_model.dart';
+import '../../widgets/form_container_widget.dart';
 import 'user_crud_update_page.dart';
 
 class CRUDPage extends StatefulWidget {

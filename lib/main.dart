@@ -5,14 +5,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gonoam_v1/features/app/splash_screen/splash_screen.dart';
-import 'package:gonoam_v1/features/presentation/pages/crud_page.dart';
-import 'package:gonoam_v1/features/presentation/pages/voice_synthesis.dart';
+import 'package:gonoam_v1/features/presentation/pages/test_excrd/crud_page.dart';
+import 'package:gonoam_v1/features/presentation/pages/voice_synthesis/voice_synthesis_main_page.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
-import 'features/presentation/pages/favorite_translation_page.dart';
-import 'features/presentation/pages/history_translation_page.dart';
-import 'features/presentation/pages/login_page.dart';
-import 'features/presentation/pages/sign_up_page.dart';
+import 'features/presentation/pages/translation/favorite_translation_page.dart';
+import 'features/presentation/pages/translation/history_translation_page.dart';
+import 'features/presentation/pages/auth/login_page.dart';
+import 'features/presentation/pages/auth/sign_up_page.dart';
 import 'features/presentation/pages/user_profile/user_profile_page.dart';
 
 import 'features/presentation/widgets/app_bottom_navigation_bar.dart';
@@ -71,7 +71,8 @@ class MyApp extends StatelessWidget {
             name: '/favorite_translation_page',
             page: () => const FavoriteTranslationPage()),
         GetPage(
-            name: '/voice_synthesis_page', page: () => const VoiceSynthesis()),
+            name: '/voice_synthesis_page',
+            page: () => const VoiceSynthesisMainPage()),
       ],
     );
   }

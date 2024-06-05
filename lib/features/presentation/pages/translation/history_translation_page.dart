@@ -183,8 +183,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../model/translation_model.dart';
-import '../widgets/translation_box.dart';
+import '../../../../model/translation_model.dart';
+import '../../widgets/translation_box.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class HistoryTranslationPage extends StatefulWidget {
@@ -406,6 +406,7 @@ class _HistoryTranslationPageState extends State<HistoryTranslationPage> {
           'Delete',
           style: TextStyle(fontSize: 16, color: Colors.white),
         ),
+        heroTag: 'history_translation_Del',
       ),
     );
   }

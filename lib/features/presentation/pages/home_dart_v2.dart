@@ -193,6 +193,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _startListening,
+        heroTag: 'home_page_v2_microphone',
         child: const Icon(Icons.mic),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
