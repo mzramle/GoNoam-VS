@@ -129,17 +129,23 @@
 //       };
 // }
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
 
+import 'package:provider/provider.dart';
+import '../../../controller/language_controller.dart';
 import '../../../controller/translator_controller.dart';
+<<<<<<< Updated upstream
 import '../../../helper/global.dart';
 import '../widgets/app_bottom_navigation_bar.dart';
 import '../widgets/custom_btn.dart';
+=======
+import '../../../helper/toast.dart';
+import '../../../provider/voice_sample_provider.dart';
+>>>>>>> Stashed changes
 import '../widgets/custom_loading.dart';
 import '../widgets/language_sheet.dart';
 
@@ -151,11 +157,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _c = TranslateController();
-  final stt.SpeechToText _speech = stt.SpeechToText();
-  final FlutterTts flutterTts = FlutterTts();
+  late TranslateController _c;
+  late stt.SpeechToText _speech;
+  late FlutterTts flutterTts;
+  late Size mq;
+
+  @override
+  void initState() {
+    super.initState();
+    _c = TranslateController();
+    _speech = stt.SpeechToText();
+    flutterTts = FlutterTts();
+  }
 
   void _startListening() async {
+<<<<<<< Updated upstream
     if (!_speech.isListening) {
       bool available = await _speech.initialize(
         onStatus: (status) => print('status: $status'),
@@ -167,8 +183,39 @@ class _HomePageState extends State<HomePage> {
           onResult: (result) => setState(() {
             _c.textC.text = result.recognizedWords;
           }),
+=======
+    try {
+      if (!_speech.isListening) {
+        bool available = await _speech.initialize(
+          onStatus: (status) {
+            if (status == 'listening') {
+              showToast(message: 'Listening...');
+            } else if (status == 'done') {
+              showSuccessToast('Done');
+            }
+          },
+          onError: (error) {
+            showErrorToast('error: $error');
+            _speech.stop();
+          },
+>>>>>>> Stashed changes
         );
+
+        if (available) {
+          _speech.listen(
+            onResult: (result) {
+              setState(() {
+                _c.textC.text = result.recognizedWords;
+              });
+            },
+          );
+        } else {
+          showErrorToast('The user has denied the use of speech recognition.');
+        }
       }
+    } catch (e) {
+      showErrorToast('Error initializing speech recognition: $e');
+      print('Error initializing speech recognition: $e');
     }
   }
 
@@ -190,11 +237,51 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    mq = MediaQuery.sizeOf(context);
+    mq = MediaQuery.of(context).size;
+
+    final voiceSampleProvider = Provider.of<VoiceSampleProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
+<<<<<<< Updated upstream
         title: const Text('GoNoam Translation'),
+=======
+        title: const Text(
+          'GoNoam Translation',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.blue,
+        automaticallyImplyLeading: false,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (String result) {
+              if (result == 'user_profile') {
+                Get.toNamed('/user_profile');
+              } else if (result == 'logout') {
+                _signOut();
+              } else if (result == 'settings') {
+                Get.toNamed('/settings');
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'user_profile',
+                child: Text('User Profile'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'logout',
+                child: Text('Log Out'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'settings',
+                child: Text('Setting'),
+              ),
+            ],
+            icon: const Icon(Icons.person, color: Colors.white),
+          ),
+        ],
+>>>>>>> Stashed changes
       ),
       body: Column(
         children: [
@@ -208,8 +295,20 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     InkWell(
-                      onTap: () =>
-                          Get.bottomSheet(LanguageSheet(c: _c, s: _c.from)),
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) {
+                            return LanguageSheet(
+                              selectedLanguage: languageProvider.chosenLanguage,
+                              onLanguageSelected: (language) {
+                                languageProvider.setChosenLanguage(language);
+                                _c.from.value = language;
+                              },
+                            );
+                          },
+                        );
+                      },
                       borderRadius: const BorderRadius.all(Radius.circular(15)),
                       child: Container(
                         height: 50,
@@ -220,24 +319,43 @@ class _HomePageState extends State<HomePage> {
                           borderRadius:
                               const BorderRadius.all(Radius.circular(15)),
                         ),
-                        child: Obx(() =>
-                            Text(_c.from.isEmpty ? 'Auto' : _c.from.value)),
+                        child: Text(languageProvider.chosenLanguage.isEmpty
+                            ? 'Auto'
+                            : languageProvider.chosenLanguage),
                       ),
                     ),
                     IconButton(
-                      onPressed: _c.swapLanguages,
-                      icon: Obx(
-                        () => Icon(
-                          CupertinoIcons.repeat,
-                          color: _c.to.isNotEmpty && _c.from.isNotEmpty
-                              ? Colors.blue
-                              : Colors.grey,
-                        ),
+                      onPressed: () {
+                        final temp = languageProvider.chosenLanguage;
+                        languageProvider.setChosenLanguage(
+                            voiceSampleProvider.chosenLanguage);
+                        voiceSampleProvider.setChosenLanguage(temp);
+                        _c.swapLanguages();
+                      },
+                      icon: Icon(
+                        Icons.swap_horiz,
+                        color: languageProvider.chosenLanguage.isNotEmpty &&
+                                voiceSampleProvider.chosenLanguage.isNotEmpty
+                            ? Colors.blue
+                            : Colors.grey,
                       ),
                     ),
                     InkWell(
-                      onTap: () =>
-                          Get.bottomSheet(LanguageSheet(c: _c, s: _c.to)),
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) {
+                            return LanguageSheet(
+                              selectedLanguage:
+                                  voiceSampleProvider.chosenLanguage,
+                              onLanguageSelected: (language) {
+                                voiceSampleProvider.setChosenLanguage(language);
+                                _c.to.value = language;
+                              },
+                            );
+                          },
+                        );
+                      },
                       borderRadius: const BorderRadius.all(Radius.circular(15)),
                       child: Container(
                         height: 50,
@@ -248,8 +366,9 @@ class _HomePageState extends State<HomePage> {
                           borderRadius:
                               const BorderRadius.all(Radius.circular(15)),
                         ),
-                        child:
-                            Obx(() => Text(_c.to.isEmpty ? 'To' : _c.to.value)),
+                        child: Text(voiceSampleProvider.chosenLanguage.isEmpty
+                            ? 'To'
+                            : voiceSampleProvider.chosenLanguage),
                       ),
                     ),
                   ],
@@ -285,10 +404,33 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Obx(() => _translateResult()),
                 SizedBox(height: mq.height * .04),
+<<<<<<< Updated upstream
                 CustomBtn(
                   onTap: _c.googleTranslate,
                   text: 'Translate',
                 )
+=======
+                Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: _c.googleTranslate,
+                      style: ButtonStyle(
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.white),
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            const Color.fromARGB(255, 255, 123, 0)),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.0),
+                          ),
+                        ),
+                      ),
+                      child: const Text('Translate'),
+                    ),
+                  ],
+                ),
+>>>>>>> Stashed changes
               ],
             ),
           ),

@@ -26,8 +26,8 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.gonoam_v1"
-    compileSdkVersion flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    compileSdkVersion 34
+    ndkVersion "26.1.10909125"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -47,8 +47,8 @@ android {
         applicationId "com.example.gonoam_v1"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 21
-        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion 23
+        targetSdkVersion 34
         multiDexEnabled true
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -61,12 +61,17 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    lint {
+          baseline = file("lint-baseline.xml")
+      }
 }
 
 flutter {
     source '../..'
 }
 dependencies{
-    implementation 'com.android.support:multidex:1.0.3'
-    implementation 'com.facebook.infer.annotation:infer-annotation:0.18.0'
+    implementation "com.android.tools:r8:8.2.42"
+    implementation "com.android.support:multidex:1.0.3"
+    implementation "com.facebook.infer.annotation:infer-annotation:0.18.0"
+    implementation "androidx.browser:browser:1.5.0"
 }

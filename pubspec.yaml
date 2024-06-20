@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.2.5+5
 
 environment:
   sdk: '>=3.0.3 <4.0.0'
@@ -30,14 +30,21 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core: ^2.30.1
+  firebase_core: ^3.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+<<<<<<< Updated upstream
   cloud_firestore: ^4.17.2
   firebase_auth: ^4.19.4
   firebase_storage: ^11.7.4
+=======
+  cloud_firestore: ^5.0.1
+  firebase_auth: ^5.1.0
+  firebase_storage: ^12.0.1
+  firebase_app_check: ^0.3.0+1
+>>>>>>> Stashed changes
   speech_to_text: ^6.6.1
   chat_gpt_sdk: ^3.0.7
   translator_plus: ^1.0.1
@@ -46,11 +53,28 @@ dependencies:
   fluttertoast: ^8.0.8
 
   http: any
-  easy_audience_network: ^0.0.6
   hive_flutter: ^1.1.0
   appwrite: ^12.0.3
   flutter_tts: ^4.0.2
   html: ^0.15.4
+<<<<<<< Updated upstream
+=======
+  persistent_bottom_nav_bar_v2: ^5.2.3
+  google_fonts: ^6.2.1
+  permission_handler: ^11.3.1
+  provider: ^6.1.2
+  record: ^5.0.5
+  just_audio: ^0.9.38
+  path_provider: ^2.1.3
+  audio_session: ^0.1.19
+
+flutter_launcher_icons:
+  android: "gonoam_launcher_icon"
+  ios: true
+  image_path: "assets/images/GoNoam_logo_L_cropped.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  
+>>>>>>> Stashed changes
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -60,7 +84,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^4.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

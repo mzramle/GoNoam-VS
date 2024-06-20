@@ -1,31 +1,35 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
-import '../../../controller/translator_controller.dart';
-import '../../../helper/global.dart';
+import 'package:provider/provider.dart';
+import '../../../controller/language_controller.dart';
 
 class LanguageSheet extends StatefulWidget {
-  final TranslateController c;
-  final RxString s;
+  final String selectedLanguage;
+  final Function(String) onLanguageSelected;
 
-  const LanguageSheet({Key? key, required this.c, required this.s})
-      : super(key: key);
+  const LanguageSheet({
+    Key? key,
+    required this.selectedLanguage,
+    required this.onLanguageSelected,
+  }) : super(key: key);
 
   @override
   State<LanguageSheet> createState() => _LanguageSheetState();
 }
 
 class _LanguageSheetState extends State<LanguageSheet> {
-  final _search = ''.obs;
+  String _search = '';
 
   @override
   Widget build(BuildContext context) {
+    //final languageProvider = Provider.of<LanguageProvider>(context);
+
     return Container(
-      height: mq.height * .5,
+      height: MediaQuery.of(context).size.height * .5,
       padding: EdgeInsets.only(
-          left: mq.width * .04, right: mq.width * .04, top: mq.height * .02),
+          left: MediaQuery.of(context).size.width * .04,
+          right: MediaQuery.of(context).size.width * .04,
+          top: MediaQuery.of(context).size.height * .02),
       decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
           borderRadius: const BorderRadius.only(
@@ -33,10 +37,11 @@ class _LanguageSheetState extends State<LanguageSheet> {
       child: Column(
         children: [
           TextFormField(
-            // controller: _c.resultC,
-            onChanged: (s) => _search.value = s.toLowerCase(),
-
-            onTapOutside: (e) => FocusScope.of(context).unfocus(),
+            onChanged: (s) {
+              setState(() {
+                _search = s.toLowerCase();
+              });
+            },
             decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.translate_rounded, color: Colors.blue),
                 hintText: 'Search Language...',
@@ -45,27 +50,29 @@ class _LanguageSheetState extends State<LanguageSheet> {
                     borderRadius: BorderRadius.all(Radius.circular(10)))),
           ),
           Expanded(
-            child: Obx(
-              () {
+            child: Consumer<LanguageProvider>(
+              builder: (context, languageProvider, child) {
                 final List<String> list = _search.isEmpty
-                    ? widget.c.lang
-                    : widget.c.lang
-                        .where((e) => e.toLowerCase().contains(_search.value))
+                    ? languageProvider.languages
+                    : languageProvider.languages
+                        .where((e) => e.toLowerCase().contains(_search))
                         .toList();
 
                 return ListView.builder(
                   physics: const BouncingScrollPhysics(),
                   itemCount: list.length,
-                  padding: EdgeInsets.only(top: mq.height * .02, left: 6),
+                  padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * .02, left: 6),
                   itemBuilder: (ctx, i) {
                     return InkWell(
                       onTap: () {
-                        widget.s.value = list[i];
+                        widget.onLanguageSelected(list[i]);
                         log(list[i]);
-                        Get.back();
+                        Navigator.of(context).pop();
                       },
                       child: Padding(
-                        padding: EdgeInsets.only(bottom: mq.height * .02),
+                        padding: EdgeInsets.only(
+                            bottom: MediaQuery.of(context).size.height * .02),
                         child: Text(list[i]),
                       ),
                     );
@@ -73,7 +80,7 @@ class _LanguageSheetState extends State<LanguageSheet> {
                 );
               },
             ),
-          )
+          ),
         ],
       ),
     );

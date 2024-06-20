@@ -1,9 +1,14 @@
 import 'dart:io';
+<<<<<<< Updated upstream
 
+=======
+import 'package:firebase_app_check/firebase_app_check.dart';
+>>>>>>> Stashed changes
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gonoam_v1/features/app/splash_screen/splash_screen.dart';
+<<<<<<< Updated upstream
 
 import 'features/presentation/pages/history_translation.dart';
 import 'features/presentation/pages/home_page.dart';
@@ -11,6 +16,21 @@ import 'features/presentation/pages/login_page.dart';
 import 'features/presentation/pages/sign_up_page.dart';
 import 'features/presentation/pages/voice_synthesis.dart';
 import 'helper/global.dart';
+=======
+import 'package:gonoam_v1/features/presentation/pages/test_excrd/crud_page.dart';
+import 'package:gonoam_v1/features/presentation/pages/voice_synthesis/voice_synthesis_main_page.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+import 'package:provider/provider.dart';
+
+import 'controller/language_controller.dart';
+import 'features/presentation/pages/translation/favorite_translation_page.dart';
+import 'features/presentation/pages/translation/history_translation_page.dart';
+import 'features/presentation/pages/auth/login_page.dart';
+import 'features/presentation/pages/auth/sign_up_page.dart';
+import 'features/presentation/pages/user_profile/user_profile_page.dart';
+import 'features/presentation/widgets/app_bottom_navigation_bar.dart';
+import 'provider/voice_sample_provider.dart';
+>>>>>>> Stashed changes
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +45,15 @@ Future main() async {
         ))
       : await Firebase.initializeApp();
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => VoiceSampleProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

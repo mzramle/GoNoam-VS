@@ -6,6 +6,11 @@ import 'package:get/get.dart';
 
 import '../api/api.dart';
 import '../helper/my_dialog.dart';
+<<<<<<< Updated upstream
+=======
+import '../helper/toast.dart';
+import '../model/translation_model.dart';
+>>>>>>> Stashed changes
 
 enum Status { none, loading, complete }
 
@@ -16,7 +21,268 @@ class TranslateController extends GetxController {
   final from = ''.obs, to = ''.obs;
   final status = Status.none.obs;
 
+<<<<<<< Updated upstream
   // list of languages available
+=======
+  final sourceCountry = ''.obs, targetCountry = ''.obs;
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<void> translate() async {
+    if (textC.text.trim().isNotEmpty && to.value.isNotEmpty) {
+      status.value = Status.loading;
+
+      String prompt = '';
+
+      if (from.value.isNotEmpty) {
+        prompt =
+            'Can you translate given text from ${from.value} to ${to.value}:\n${textC.text}';
+      } else {
+        prompt = 'Can you translate given text to ${to.value}:\n${textC.text}';
+      }
+
+      final res = await APIs.getAnswer(prompt);
+      resultC.text = utf8.decode(res.codeUnits);
+
+      // Save translation to Firebase
+      await _saveTranslationToFirebase(
+        originalText: textC.text,
+        translatedText: resultC.text,
+        sourceLanguage: from.value,
+        targetLanguage: to.value,
+        sourceCountry: sourceCountry.value,
+        targetCountry: targetCountry.value,
+      );
+
+      status.value = Status.complete;
+    } else {
+      status.value = Status.none;
+      if (to.value.isEmpty) MyDialog.info('Select To Language!');
+      if (textC.text.isEmpty) MyDialog.info('Type Something to Translate!');
+    }
+  }
+
+  Future<void> _saveTranslationToFirebase({
+    required String originalText,
+    required String translatedText,
+    required String sourceLanguage,
+    required String targetLanguage,
+    required String sourceCountry,
+    required String targetCountry,
+  }) async {
+    try {
+      final translation = TranslationModel(
+        originalText: originalText,
+        translatedText: translatedText,
+        sourceLanguage: sourceLanguage,
+        targetLanguage: targetLanguage,
+        sourceCountry: sourceCountry,
+        targetCountry: targetCountry,
+        creationTime: DateTime.now(),
+      );
+
+      await _firestore
+          .collection('history_translation')
+          .add(translation.toMap());
+    } catch (e) {
+      showErrorToast('Error saving translation: $e');
+    }
+  }
+
+  void swapLanguages() {
+    if (to.isNotEmpty && from.isNotEmpty) {
+      final t = to.value;
+      to.value = from.value;
+      from.value = t;
+
+      final tempCountry = sourceCountry.value;
+      sourceCountry.value = targetCountry.value;
+      targetCountry.value = tempCountry;
+
+      final tempText = textC.text;
+      textC.text = resultC.text;
+      resultC.text = tempText;
+    }
+  }
+
+  void autoDetectSourceLanguage() {
+    final detectedLanguage = detectLanguage(textC.text);
+    if (detectedLanguage.isNotEmpty) {
+      from.value = detectedLanguage;
+    }
+  }
+
+  String detectLanguage(String text) {
+    return 'en';
+  }
+
+  Future<void> googleTranslate() async {
+    if (textC.text.trim().isNotEmpty && to.value.isNotEmpty) {
+      status.value = Status.loading;
+
+      resultC.text = await APIs.googleTranslate(
+          from: jsonLang[from.value] ?? 'auto',
+          to: jsonLang[to.value] ?? 'en',
+          text: textC.text);
+
+      await _saveTranslationToFirebase(
+        originalText: textC.text,
+        translatedText: resultC.text,
+        sourceLanguage: from.value,
+        targetLanguage: to.value,
+        sourceCountry: sourceCountry.value,
+        targetCountry: targetCountry.value,
+      );
+
+      status.value = Status.complete;
+    } else {
+      status.value = Status.none;
+      if (to.value.isEmpty) MyDialog.info('Select To Language!');
+      if (textC.text.isEmpty) {
+        MyDialog.info('Type Something to Translate!');
+      }
+    }
+  }
+
+  late final lang = jsonLang.keys.toList();
+
+  final jsonLang = const {
+    'Afrikaans': 'af',
+    'Albanian': 'sq',
+    'Amharic': 'am',
+    'Arabic': 'ar',
+    'Armenian': 'hy',
+    'Assamese': 'as',
+    'Aymara': 'ay',
+    'Azerbaijani': 'az',
+    'Bambara': 'bm',
+    'Basque': 'eu',
+    'Belarusian': 'be',
+    'Bengali': 'bn',
+    'Bhojpuri': 'bho',
+    'Bosnian': 'bs',
+    'Bulgarian': 'bg',
+    'Catalan': 'ca',
+    'Cebuano': 'ceb',
+    'Chinese (Simplified)': 'zh-cn',
+    'Chinese (Traditional)': 'zh-tw',
+    'Corsican': 'co',
+    'Croatian': 'hr',
+    'Czech': 'cs',
+    'Danish': 'da',
+    'Dhivehi': 'dv',
+    'Dogri': 'doi',
+    'Dutch': 'nl',
+    'English': 'en',
+    'Esperanto': 'eo',
+    'Estonian': 'et',
+    'Ewe': 'ee',
+    'Filipino (Tagalog)': 'tl',
+    'Finnish': 'fi',
+    'French': 'fr',
+    'Frisian': 'fy',
+    'Galician': 'gl',
+    'Georgian': 'ka',
+    'German': 'de',
+    'Greek': 'el',
+    'Guarani': 'gn',
+    'Gujarati': 'gu',
+    'Haitian Creole': 'ht',
+    'Hausa': 'ha',
+    'Hawaiian': 'haw',
+    'Hebrew': 'iw',
+    'Hindi': 'hi',
+    'Hmong': 'hmn',
+    'Hungarian': 'hu',
+    'Icelandic': 'is',
+    'Igbo': 'ig',
+    'Ilocano': 'ilo',
+    'Indonesian': 'id',
+    'Irish': 'ga',
+    'Italian': 'it',
+    'Japanese': 'ja',
+    'Javanese': 'jw',
+    'Kannada': 'kn',
+    'Kazakh': 'kk',
+    'Khmer': 'km',
+    'Kinyarwanda': 'rw',
+    'Konkani': 'gom',
+    'Korean': 'ko',
+    'Krio': 'kri',
+    'Kurdish (Kurmanji)': 'ku',
+    'Kurdish (Sorani)': 'ckb',
+    'Kyrgyz': 'ky',
+    'Lao': 'lo',
+    'Latin': 'la',
+    'Latvian': 'lv',
+    'Lithuanian': 'lt',
+    'Luganda': 'lg',
+    'Luxembourgish': 'lb',
+    'Macedonian': 'mk',
+    'Malagasy': 'mg',
+    'Maithili': 'mai',
+    'Malay': 'ms',
+    'Malayalam': 'ml',
+    'Maltese': 'mt',
+    'Maori': 'mi',
+    'Marathi': 'mr',
+    'Meiteilon (Manipuri)': 'mni-mtei',
+    'Mizo': 'lus',
+    'Mongolian': 'mn',
+    'Myanmar (Burmese)': 'my',
+    'Nepali': 'ne',
+    'Norwegian': 'no',
+    'Odia (Oriya)': 'or',
+    'Oromo': 'om',
+    'Pashto': 'ps',
+    'Persian': 'fa',
+    'Polish': 'pl',
+    'Portuguese': 'pt',
+    'Punjabi': 'pa',
+    'Quechua': 'qu',
+    'Romanian': 'ro',
+    'Russian': 'ru',
+    'Samoan': 'sm',
+    'Sanskrit': 'sa',
+    'Scots Gaelic': 'gd',
+    'Sepedi': 'nso',
+    'Serbian': 'sr',
+    'Sesotho': 'st',
+    'Shona': 'sn',
+    'Sindhi': 'sd',
+    'Sinhala (Sinhalese)': 'si',
+    'Slovak': 'sk',
+    'Slovenian': 'sl',
+    'Somali': 'so',
+    'Spanish': 'es',
+    'Sundanese': 'su',
+    'Swahili': 'sw',
+    'Swedish': 'sv',
+    'Tajik': 'tg',
+    'Tamil': 'ta',
+    'Tatar': 'tt',
+    'Telugu': 'te',
+    'Thai': 'th',
+    'Tigrinya': 'ti',
+    'Tsonga': 'ts',
+    'Turkish': 'tr',
+    'Turkmen': 'tk',
+    'Twi (Akan)': 'ak',
+    'Ukrainian': 'uk',
+    'Urdu': 'ur',
+    'Uyghur': 'ug',
+    'Uzbek': 'uz',
+    'Vietnamese': 'vi',
+    'Welsh': 'cy',
+    'Xhosa': 'xh',
+    'Yiddish': 'yi',
+    'Yoruba': 'yo',
+    'Zulu': 'zu',
+  };
+}
+
+ // list of languages available
+>>>>>>> Stashed changes
   // final lang = const [
   //   "Afar",
   //   "Abkhazian",
