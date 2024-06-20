@@ -39,26 +39,20 @@ dependencies:
   cloud_firestore: ^4.17.2
   firebase_auth: ^4.19.4
   firebase_storage: ^11.7.4
-=======
-  cloud_firestore: ^5.0.1
-  firebase_auth: ^5.1.0
-  firebase_storage: ^12.0.1
-  firebase_app_check: ^0.3.0+1
->>>>>>> Stashed changes
+  firebase_app_check: ^0.2.2+7
   speech_to_text: ^6.6.1
   chat_gpt_sdk: ^3.0.7
   translator_plus: ^1.0.1
   get: ^4.6.6
   lottie: ^3.1.0
-  fluttertoast: ^8.0.8
+  fluttertoast: ^8.2.5
+  flutter_launcher_icons: ^0.13.1
 
   http: any
   hive_flutter: ^1.1.0
   appwrite: ^12.0.3
   flutter_tts: ^4.0.2
   html: ^0.15.4
-<<<<<<< Updated upstream
-=======
   persistent_bottom_nav_bar_v2: ^5.2.3
   google_fonts: ^6.2.1
   permission_handler: ^11.3.1
@@ -74,7 +68,16 @@ flutter_launcher_icons:
   image_path: "assets/images/GoNoam_logo_L_cropped.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
   
->>>>>>> Stashed changes
+  persistent_bottom_nav_bar_v2: ^5.2.3
+  google_fonts: ^6.2.1
+  flutter_sound: ^9.4.15
+
+flutter_launcher_icons:
+  android: "gonoam_launcher_icon"
+  ios: true
+  image_path: "assets/images/GoNoam_logo_L_cropped.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

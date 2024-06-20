@@ -134,23 +134,30 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:provider/provider.dart';
 import '../../../controller/language_controller.dart';
 import '../../../controller/translator_controller.dart';
 <<<<<<< Updated upstream
 import '../../../helper/global.dart';
+<<<<<<< HEAD
 import '../widgets/app_bottom_navigation_bar.dart';
 import '../widgets/custom_btn.dart';
 =======
 import '../../../helper/toast.dart';
 import '../../../provider/voice_sample_provider.dart';
 >>>>>>> Stashed changes
+=======
+import '../../../helper/toast.dart';
+>>>>>>> Adjust-Voice-Create-Voice
 import '../widgets/custom_loading.dart';
 import '../widgets/language_sheet.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -174,8 +181,8 @@ class _HomePageState extends State<HomePage> {
 <<<<<<< Updated upstream
     if (!_speech.isListening) {
       bool available = await _speech.initialize(
-        onStatus: (status) => print('status: $status'),
-        onError: (error) => print('error: $error'),
+        onStatus: (status) => showToast(message: 'status: $status'),
+        onError: (error) => showErrorToast('error: $error'),
       );
 
       if (available) {
@@ -219,20 +226,15 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _speakOriginalText() async {
-    if (_c.textC.text.isNotEmpty) {
-      await flutterTts.setLanguage('en');
-      await flutterTts.setPitch(1);
-      await flutterTts.speak(_c.textC.text);
-    }
+  Future<void> _speakText(String text, String languageCode) async {
+    await flutterTts.setLanguage(languageCode);
+    await flutterTts.setPitch(1);
+    await flutterTts.speak(text);
   }
 
-  Future<void> _speakTranslatedText() async {
-    if (_c.resultC.text.isNotEmpty) {
-      await flutterTts.setLanguage(_c.to.value);
-      await flutterTts.setPitch(1);
-      await flutterTts.speak(_c.resultC.text);
-    }
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    Get.offAllNamed('/login');
   }
 
   @override
@@ -244,6 +246,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
+<<<<<<< HEAD
 <<<<<<< Updated upstream
         title: const Text('GoNoam Translation'),
 =======
@@ -251,6 +254,10 @@ class _HomePageState extends State<HomePage> {
           'GoNoam Translation',
           style: TextStyle(color: Colors.white),
         ),
+=======
+        title: const Text('GoNoam Translation',
+            style: TextStyle(color: Colors.white)),
+>>>>>>> Adjust-Voice-Create-Voice
         backgroundColor: Colors.blue,
         automaticallyImplyLeading: false,
         actions: [
@@ -263,6 +270,12 @@ class _HomePageState extends State<HomePage> {
               } else if (result == 'settings') {
                 Get.toNamed('/settings');
               }
+<<<<<<< HEAD
+=======
+              // } else if (result == 'example_crd') {
+              //   Get.toNamed('/example_crd');
+              // }
+>>>>>>> Adjust-Voice-Create-Voice
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
@@ -277,11 +290,21 @@ class _HomePageState extends State<HomePage> {
                 value: 'settings',
                 child: Text('Setting'),
               ),
+<<<<<<< HEAD
+=======
+              // const PopupMenuItem<String>(
+              //   value: 'example_crd',
+              //   child: Text('Example CRD'),
+              // ),
+>>>>>>> Adjust-Voice-Create-Voice
             ],
             icon: const Icon(Icons.person, color: Colors.white),
           ),
         ],
+<<<<<<< HEAD
 >>>>>>> Stashed changes
+=======
+>>>>>>> Adjust-Voice-Create-Voice
       ),
       body: Column(
         children: [
@@ -395,7 +418,8 @@ class _HomePageState extends State<HomePage> {
                         bottom: 0,
                         right: 0,
                         child: IconButton(
-                          onPressed: _speakOriginalText,
+                          onPressed: () => _speakText(_c.textC.text,
+                              _c.from.value.isEmpty ? 'en' : _c.from.value),
                           icon: const Icon(Icons.volume_up),
                         ),
                       ),
@@ -404,6 +428,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Obx(() => _translateResult()),
                 SizedBox(height: mq.height * .04),
+<<<<<<< HEAD
 <<<<<<< Updated upstream
                 CustomBtn(
                   onTap: _c.googleTranslate,
@@ -431,6 +456,27 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
 >>>>>>> Stashed changes
+=======
+                Column(
+                  children: [
+                    ElevatedButton(
+                        onPressed: _c.googleTranslate,
+                        style: ButtonStyle(
+                          foregroundColor:
+                              MaterialStateProperty.all<Color>(Colors.white),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              const Color.fromARGB(255, 255, 123, 0)),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.0),
+                            ),
+                          ),
+                        ),
+                        child: const Text('Translate')),
+                  ],
+                ),
+>>>>>>> Adjust-Voice-Create-Voice
               ],
             ),
           ),
@@ -438,19 +484,10 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _startListening,
+        heroTag: 'home_page_v1_voice_input',
         child: const Icon(Icons.mic),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      bottomNavigationBar: BottomNavigationBarWidget(
-        selectedIndex: 0, // Home page is selected
-        onItemSelected: (index) {
-          // Handle navigation to other pages
-          if (index == 0) return; // Already in home page
-          if (index == 1) {
-            Get.offNamed('/history_translation');
-          } else if (index == 2) Get.offNamed('/voice_synthesis');
-        },
-      ),
     );
   }
 
@@ -475,7 +512,7 @@ class _HomePageState extends State<HomePage> {
               ),
               Positioned(
                 bottom: 0,
-                right: 0,
+                right: 50,
                 child: Row(
                   children: [
                     IconButton(
@@ -488,7 +525,7 @@ class _HomePageState extends State<HomePage> {
                       icon: const Icon(Icons.copy),
                     ),
                     IconButton(
-                      onPressed: _speakTranslatedText,
+                      onPressed: () => _speakText(_c.resultC.text, _c.to.value),
                       icon: const Icon(Icons.volume_up),
                     ),
                   ],

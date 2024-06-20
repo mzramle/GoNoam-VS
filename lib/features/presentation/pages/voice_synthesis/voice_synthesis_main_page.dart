@@ -96,7 +96,7 @@ class VoiceSynthesisMainPage extends StatelessWidget {
                 child: OrangeButton(
                   text: 'Create Voice Sample',
                   onPressed: () {
-                    Get.to(() => const CreateVoiceSamplePage());
+                    Get.to(const CreateVoiceSamplePage());
                   },
                 ),
               ),

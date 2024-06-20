@@ -220,7 +220,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
       // Update email if it has changed
       if (_emailController.text.trim() != user.email) {
-        await user.verifyBeforeUpdateEmail(_emailController.text.trim());
+        await user.updateEmail(_emailController.text.trim());
         await user.sendEmailVerification();
       }
 

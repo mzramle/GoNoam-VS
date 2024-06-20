@@ -17,15 +17,10 @@
     <application
         android:label="gonoam_v1"
         android:name="${applicationName}"
-<<<<<<< Updated upstream
-        android:icon="@mipmap/ic_launcher">
-=======
         android:icon="@mipmap/gonoam_launcher_icon">
         <!-- EDIT THE android:name ATTRIBUTE IN YOUR EXISTING "ACTIVITY" ELEMENT ryanheise-->
         <!-- android:name="com.ryanheise.audioservice.AudioServiceActivity" -->
          <!-- android:name=".MainActivity" -->
-
->>>>>>> Stashed changes
         <activity
             android:name="com.ryanheise.audioservice.AudioServiceActivity"
             android:exported="true"

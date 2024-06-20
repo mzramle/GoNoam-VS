@@ -14,14 +14,13 @@ class CustomBtn extends StatelessWidget {
     return Align(
       child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-              shape: const StadiumBorder(),
-              elevation: 0,
-              backgroundColor: Theme.of(context).buttonColor,
-              textStyle: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500),
-              minimumSize: Size(mq.width * .4, 50)),
+            shape: const StadiumBorder(),
+            elevation: 0,
+            backgroundColor: Theme.of(context).buttonColor,
+            textStyle: const TextStyle(
+                color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+            minimumSize: Size(mq.width * .4, 50),
+          ),
           onPressed: onTap,
           child: Text(text)),
     );
