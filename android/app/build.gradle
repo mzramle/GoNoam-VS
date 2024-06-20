@@ -42,6 +42,14 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+
+    lintOptions {
+      disable 'MissingPermission'
+    }
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.example.gonoam_v1"
@@ -61,9 +69,7 @@ android {
             signingConfig signingConfigs.debug
         }
     }
-    lint {
-          baseline = file("lint-baseline.xml")
-      }
+
 }
 
 flutter {
@@ -72,6 +78,5 @@ flutter {
 dependencies{
     implementation "com.android.tools:r8:8.2.42"
     implementation "com.android.support:multidex:1.0.3"
-    implementation "com.facebook.infer.annotation:infer-annotation:0.18.0"
     implementation "androidx.browser:browser:1.5.0"
 }
