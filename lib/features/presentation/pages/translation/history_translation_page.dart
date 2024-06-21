@@ -188,7 +188,7 @@ import '../../widgets/translation_box.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class HistoryTranslationPage extends StatefulWidget {
-  const HistoryTranslationPage({Key? key}) : super(key: key);
+  const HistoryTranslationPage({super.key});
 
   @override
   State<HistoryTranslationPage> createState() => _HistoryTranslationPageState();

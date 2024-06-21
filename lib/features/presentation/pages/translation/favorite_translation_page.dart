@@ -5,7 +5,7 @@ import '../../widgets/translation_box.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class FavoriteTranslationPage extends StatefulWidget {
-  const FavoriteTranslationPage({Key? key}) : super(key: key);
+  const FavoriteTranslationPage({super.key});
 
   @override
   State<FavoriteTranslationPage> createState() =>

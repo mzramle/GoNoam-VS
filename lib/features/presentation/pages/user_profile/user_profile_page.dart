@@ -154,7 +154,7 @@ import 'package:gonoam_v1/features/presentation/widgets/form_container_widget.da
 import 'package:gonoam_v1/helper/toast.dart';
 
 class UserProfilePage extends StatefulWidget {
-  const UserProfilePage({Key? key}) : super(key: key);
+  const UserProfilePage({super.key});
 
   @override
   State<UserProfilePage> createState() => _UserProfilePageState();
@@ -271,8 +271,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     : Icons.edit_document),
                 style: ButtonStyle(
                   foregroundColor:
-                      MaterialStateProperty.all<Color>(Colors.white),
-                  iconSize: MaterialStateProperty.all<double>(25),
+                      WidgetStateProperty.all<Color>(Colors.white),
+                  iconSize: WidgetStateProperty.all<double>(25),
                 ),
                 onPressed: () {
                   setState(() {

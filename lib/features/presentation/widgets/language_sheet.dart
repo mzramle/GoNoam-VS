@@ -8,10 +8,10 @@ class LanguageSheet extends StatefulWidget {
   final Function(String) onLanguageSelected;
 
   const LanguageSheet({
-    Key? key,
+    super.key,
     required this.selectedLanguage,
     required this.onLanguageSelected,
-  }) : super(key: key);
+  });
 
   @override
   State<LanguageSheet> createState() => _LanguageSheetState();

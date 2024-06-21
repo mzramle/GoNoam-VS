@@ -36,7 +36,7 @@ import 'package:gonoam_v1/features/presentation/pages/voice_synthesis/create_voi
 import '../../widgets/orange_button.dart';
 
 class VoiceSynthesisMainPage extends StatelessWidget {
-  const VoiceSynthesisMainPage({Key? key}) : super(key: key);
+  const VoiceSynthesisMainPage({super.key});
 
   Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();

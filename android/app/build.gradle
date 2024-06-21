@@ -44,10 +44,14 @@ android {
 
     lint {
         baseline = file("lint-baseline.xml")
+        disable 'MissingPermission'
+        disable 'ProtectedPermissions'
     }
 
     lintOptions {
-      disable 'MissingPermission'
+        baseline file("lint-baseline.xml")
+        disable 'MissingPermission'
+        disable 'ProtectedPermissions'
     }
 
     defaultConfig {

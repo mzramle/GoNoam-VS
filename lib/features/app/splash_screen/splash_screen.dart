@@ -4,8 +4,7 @@ import '../../../helper/global.dart';
 class SplashScreen extends StatefulWidget {
   final Function? onInitializationComplete;
 
-  const SplashScreen({Key? key, this.onInitializationComplete})
-      : super(key: key);
+  const SplashScreen({super.key, this.onInitializationComplete});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
