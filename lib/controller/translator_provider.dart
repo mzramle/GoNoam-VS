@@ -1,35 +1,66 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../api/api.dart';
 import '../helper/my_dialog.dart';
+import '../model/languages_list_model.dart';
 import '../model/translation_model.dart';
 
 enum Status { none, loading, complete }
 
-class TranslateController extends GetxController {
+class TranslateProvider with ChangeNotifier {
   final textC = TextEditingController();
   final resultC = TextEditingController();
 
-  final from = ''.obs, to = ''.obs;
-  final status = Status.none.obs;
+  String _from = '';
+  String get from => _from;
+  set from(String value) {
+    _from = value;
+    notifyListeners();
+  }
 
-  final sourceCountry = ''.obs, targetCountry = ''.obs; // New
+  String _to = '';
+  String get to => _to;
+  set to(String value) {
+    _to = value;
+    notifyListeners();
+  }
+
+  Status _status = Status.none;
+  Status get status => _status;
+  set status(Status value) {
+    _status = value;
+    notifyListeners();
+  }
+
+  String _sourceCountry = '';
+  String get sourceCountry => _sourceCountry;
+  set sourceCountry(String value) {
+    _sourceCountry = value;
+    notifyListeners();
+  }
+
+  String _targetCountry = '';
+  String get targetCountry => _targetCountry;
+  set targetCountry(String value) {
+    _targetCountry = value;
+    notifyListeners();
+  }
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> translate() async {
     if (textC.text.trim().isNotEmpty && to.isNotEmpty) {
-      status.value = Status.loading;
+      status = Status.loading;
 
       String prompt = '';
 
       if (from.isNotEmpty) {
         prompt =
-            'Can you translate given text from ${from.value} to ${to.value}:\n${textC.text}';
+            'Can you translate given text from $from to $to:\n${textC.text}';
       } else {
-        prompt = 'Can you translate given text to ${to.value}:\n${textC.text}';
+        prompt = 'Can you translate given text to $to:\n${textC.text}';
       }
 
       final res = await APIs.getAnswer(prompt);
@@ -39,15 +70,15 @@ class TranslateController extends GetxController {
       await _saveTranslationToFirebase(
         originalText: textC.text,
         translatedText: resultC.text,
-        sourceLanguage: from.value,
-        targetLanguage: to.value,
-        sourceCountry: sourceCountry.value,
-        targetCountry: targetCountry.value,
+        sourceLanguage: from,
+        targetLanguage: to,
+        sourceCountry: sourceCountry,
+        targetCountry: targetCountry,
       );
 
-      status.value = Status.complete;
+      status = Status.complete;
     } else {
-      status.value = Status.none;
+      status = Status.none;
       if (to.isEmpty) MyDialog.info('Select To Language!');
       if (textC.text.isEmpty) MyDialog.info('Type Something to Translate!');
     }
@@ -76,19 +107,21 @@ class TranslateController extends GetxController {
           .collection('history_translation')
           .add(translation.toMap());
     } catch (e) {
-      print('Error saving translation: $e');
+      if (kDebugMode) {
+        print('Error saving translation: $e');
+      }
     }
   }
 
   void swapLanguages() {
     if (to.isNotEmpty && from.isNotEmpty) {
-      final t = to.value;
-      to.value = from.value;
-      from.value = t;
+      final temp = to;
+      to = from;
+      from = temp;
 
-      final tempCountry = sourceCountry.value;
-      sourceCountry.value = targetCountry.value;
-      targetCountry.value = tempCountry;
+      final tempCountry = sourceCountry;
+      sourceCountry = targetCountry;
+      targetCountry = tempCountry;
 
       final tempText = textC.text;
       textC.text = resultC.text;
@@ -99,7 +132,7 @@ class TranslateController extends GetxController {
   void autoDetectSourceLanguage() {
     final detectedLanguage = detectLanguage(textC.text);
     if (detectedLanguage.isNotEmpty) {
-      from.value = detectedLanguage;
+      from = detectedLanguage;
     }
   }
 
@@ -109,25 +142,25 @@ class TranslateController extends GetxController {
 
   Future<void> googleTranslate() async {
     if (textC.text.trim().isNotEmpty && to.isNotEmpty) {
-      status.value = Status.loading;
+      status = Status.loading;
 
       resultC.text = await APIs.googleTranslate(
-          from: jsonLang[from.value] ?? 'auto',
-          to: jsonLang[to.value] ?? 'en',
+          from: jsonLang[from] ?? 'auto',
+          to: jsonLang[to] ?? 'en',
           text: textC.text);
 
       await _saveTranslationToFirebase(
         originalText: textC.text,
         translatedText: resultC.text,
-        sourceLanguage: from.value,
-        targetLanguage: to.value,
-        sourceCountry: sourceCountry.value,
-        targetCountry: targetCountry.value,
+        sourceLanguage: from,
+        targetLanguage: to,
+        sourceCountry: sourceCountry,
+        targetCountry: targetCountry,
       );
 
-      status.value = Status.complete;
+      status = Status.complete;
     } else {
-      status.value = Status.none;
+      status = Status.none;
       if (to.isEmpty) MyDialog.info('Select To Language!');
       if (textC.text.isEmpty) {
         MyDialog.info('Type Something to Translate!');
@@ -136,140 +169,6 @@ class TranslateController extends GetxController {
   }
 
   late final lang = jsonLang.keys.toList();
-
-  final jsonLang = const {
-    'Afrikaans': 'af',
-    'Albanian': 'sq',
-    'Amharic': 'am',
-    'Arabic': 'ar',
-    'Armenian': 'hy',
-    'Assamese': 'as',
-    'Aymara': 'ay',
-    'Azerbaijani': 'az',
-    'Bambara': 'bm',
-    'Basque': 'eu',
-    'Belarusian': 'be',
-    'Bengali': 'bn',
-    'Bhojpuri': 'bho',
-    'Bosnian': 'bs',
-    'Bulgarian': 'bg',
-    'Catalan': 'ca',
-    'Cebuano': 'ceb',
-    'Chinese (Simplified)': 'zh-cn',
-    'Chinese (Traditional)': 'zh-tw',
-    'Corsican': 'co',
-    'Croatian': 'hr',
-    'Czech': 'cs',
-    'Danish': 'da',
-    'Dhivehi': 'dv',
-    'Dogri': 'doi',
-    'Dutch': 'nl',
-    'English': 'en',
-    'Esperanto': 'eo',
-    'Estonian': 'et',
-    'Ewe': 'ee',
-    'Filipino (Tagalog)': 'tl',
-    'Finnish': 'fi',
-    'French': 'fr',
-    'Frisian': 'fy',
-    'Galician': 'gl',
-    'Georgian': 'ka',
-    'German': 'de',
-    'Greek': 'el',
-    'Guarani': 'gn',
-    'Gujarati': 'gu',
-    'Haitian Creole': 'ht',
-    'Hausa': 'ha',
-    'Hawaiian': 'haw',
-    'Hebrew': 'iw',
-    'Hindi': 'hi',
-    'Hmong': 'hmn',
-    'Hungarian': 'hu',
-    'Icelandic': 'is',
-    'Igbo': 'ig',
-    'Ilocano': 'ilo',
-    'Indonesian': 'id',
-    'Irish': 'ga',
-    'Italian': 'it',
-    'Japanese': 'ja',
-    'Javanese': 'jw',
-    'Kannada': 'kn',
-    'Kazakh': 'kk',
-    'Khmer': 'km',
-    'Kinyarwanda': 'rw',
-    'Konkani': 'gom',
-    'Korean': 'ko',
-    'Krio': 'kri',
-    'Kurdish (Kurmanji)': 'ku',
-    'Kurdish (Sorani)': 'ckb',
-    'Kyrgyz': 'ky',
-    'Lao': 'lo',
-    'Latin': 'la',
-    'Latvian': 'lv',
-    'Lithuanian': 'lt',
-    'Luganda': 'lg',
-    'Luxembourgish': 'lb',
-    'Macedonian': 'mk',
-    'Malagasy': 'mg',
-    'Maithili': 'mai',
-    'Malay': 'ms',
-    'Malayalam': 'ml',
-    'Maltese': 'mt',
-    'Maori': 'mi',
-    'Marathi': 'mr',
-    'Meiteilon (Manipuri)': 'mni-mtei',
-    'Mizo': 'lus',
-    'Mongolian': 'mn',
-    'Myanmar (Burmese)': 'my',
-    'Nepali': 'ne',
-    'Norwegian': 'no',
-    'Odia (Oriya)': 'or',
-    'Oromo': 'om',
-    'Pashto': 'ps',
-    'Persian': 'fa',
-    'Polish': 'pl',
-    'Portuguese': 'pt',
-    'Punjabi': 'pa',
-    'Quechua': 'qu',
-    'Romanian': 'ro',
-    'Russian': 'ru',
-    'Samoan': 'sm',
-    'Sanskrit': 'sa',
-    'Scots Gaelic': 'gd',
-    'Sepedi': 'nso',
-    'Serbian': 'sr',
-    'Sesotho': 'st',
-    'Shona': 'sn',
-    'Sindhi': 'sd',
-    'Sinhala (Sinhalese)': 'si',
-    'Slovak': 'sk',
-    'Slovenian': 'sl',
-    'Somali': 'so',
-    'Spanish': 'es',
-    'Sundanese': 'su',
-    'Swahili': 'sw',
-    'Swedish': 'sv',
-    'Tajik': 'tg',
-    'Tamil': 'ta',
-    'Tatar': 'tt',
-    'Telugu': 'te',
-    'Thai': 'th',
-    'Tigrinya': 'ti',
-    'Tsonga': 'ts',
-    'Turkish': 'tr',
-    'Turkmen': 'tk',
-    'Twi (Akan)': 'ak',
-    'Ukrainian': 'uk',
-    'Urdu': 'ur',
-    'Uyghur': 'ug',
-    'Uzbek': 'uz',
-    'Vietnamese': 'vi',
-    'Welsh': 'cy',
-    'Xhosa': 'xh',
-    'Yiddish': 'yi',
-    'Yoruba': 'yo',
-    'Zulu': 'zu',
-  };
 }
 
  // list of languages available

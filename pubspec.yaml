@@ -30,17 +30,18 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core: 2.32.0
+  firebase_core: ^2.32.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-
-  #just_audio: ^0.9.38
+  # device_info_plus: ^10.1.0
+  # just_audio: ^0.9.38
   # audio_session: ^0.1.19
+
   cupertino_icons: ^1.0.2
   cloud_firestore: ^4.17.2
-  firebase_auth: ^4.19.4
-  firebase_storage: ^11.7.4
+  firebase_auth: ^4.20.0 
+  firebase_storage: ^11.7.7
   firebase_app_check: ^0.2.2+7
   speech_to_text: ^6.6.1
   chat_gpt_sdk: ^3.0.7
@@ -59,11 +60,11 @@ dependencies:
   google_fonts: ^6.2.1
   permission_handler: ^11.3.1
   provider: ^6.1.2
-  record: ^5.0.5
+  record: ^5.1.1
   path_provider: ^2.1.3
-  device_info_plus: ^9.1.2
-# device_info_plus: ^10.1.0
-  
+
+dependency_overrides:
+  intl: ^0.18.1
 
 flutter_launcher_icons:
   android: "gonoam_launcher_icon"

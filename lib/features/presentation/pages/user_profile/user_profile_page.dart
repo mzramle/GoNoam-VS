@@ -220,7 +220,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
       // Update email if it has changed
       if (_emailController.text.trim() != user.email) {
-        await user.updateEmail(_emailController.text.trim());
+        await user.verifyBeforeUpdateEmail(_emailController.text.trim());
         await user.sendEmailVerification();
       }
 
@@ -270,8 +270,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     ? Icons.done_outline_rounded
                     : Icons.edit_document),
                 style: ButtonStyle(
-                  foregroundColor:
-                      WidgetStateProperty.all<Color>(Colors.white),
+                  foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
                   iconSize: WidgetStateProperty.all<double>(25),
                 ),
                 onPressed: () {

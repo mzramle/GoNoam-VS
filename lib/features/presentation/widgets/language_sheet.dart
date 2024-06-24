@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../controller/language_controller.dart';
+import '../../../controller/language_provider.dart';
 
 class LanguageSheet extends StatefulWidget {
   final String selectedLanguage;

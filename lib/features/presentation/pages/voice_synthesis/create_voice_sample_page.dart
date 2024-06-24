@@ -167,7 +167,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../../controller/language_controller.dart';
+import '../../../../controller/language_provider.dart';
 import '../../../../controller/voice_sample_controller.dart';
 import '../../../../helper/toast.dart';
 import '../../../../provider/voice_sample_provider.dart';

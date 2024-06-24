@@ -1,27 +1,25 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools">
-          
-        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-        <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-        <uses-permission android:name="android.permission.INTERNET"/>
-        <uses-permission android:name="android.permission.BLUETOOTH"/>
-        <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-        <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-        <!-- ADD THESE TWO PERMISSIONS -->
-        <uses-permission android:name="android.permission.WAKE_LOCK"/>
-        <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-        <!-- ALSO ADD THIS PERMISSION IF TARGETING SDK 34 -->
-        <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
-
-        <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
-            tools:ignore="ProtectedPermissions" />
+          xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.gonoam_v1">
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:label="gonoam_v1"
         android:name="${applicationName}"
+        tools:targetApi="34" 
         android:icon="@mipmap/gonoam_launcher_icon">
-         <!-- android:name=".MainActivity" -->
+
+        <!-- android:icon="@mipmap/gonoam_launcher_icon">-->
+
+        <!-- android:name=".MainActivity" -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -50,9 +48,21 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <meta-data
+        <!-- <meta-data
             android:name="dev.fluttercommunity.plus.device_info.disable_serial"
-            android:value="true" />
+            android:value="true" /> -->
 
     </application>
+        
+        <queries>
+            <intent>
+                <action android:name="android.speech.RecognitionService" />
+            </intent>
+        </queries>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE"
+                android:exported="true" />
+        </intent>
+    </queries>
 </manifest>

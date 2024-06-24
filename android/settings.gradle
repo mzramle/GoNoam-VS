@@ -24,4 +24,6 @@ plugins {
     id "com.google.gms.google-services" version "4.4.1" apply false
 }
 
+gradle.startParameter.excludedTaskNames.addAll([":gradle:testClasses"])
+
 include ":app"
