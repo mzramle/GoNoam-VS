@@ -137,7 +137,7 @@ class TranslateProvider with ChangeNotifier {
   }
 
   String detectLanguage(String text) {
-    return 'en';
+    return text.isEmpty ? '' : 'en';
   }
 
   Future<void> googleTranslate() async {

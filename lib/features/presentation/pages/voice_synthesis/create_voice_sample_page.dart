@@ -167,55 +167,93 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../../controller/language_provider.dart';
+import '../../../../provider/language_provider.dart';
 import '../../../../controller/voice_sample_controller.dart';
 import '../../../../helper/toast.dart';
 import '../../../../provider/voice_sample_provider.dart';
 import '../../../../model/text_passages_model.dart';
+import '../../widgets/form_container_widget.dart';
 import '../../widgets/language_sheet.dart';
 import '../../widgets/voice_recorder_widget.dart';
 
-class CreateVoiceSamplePage extends StatelessWidget {
+class CreateVoiceSamplePage extends StatefulWidget {
   const CreateVoiceSamplePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final voiceSampleProvider = Provider.of<VoiceSampleProvider>(context);
-    final languageProvider = Provider.of<LanguageProvider>(context);
-    final voiceSampleController = VoiceSampleController();
+  State<CreateVoiceSamplePage> createState() => _CreateVoiceSamplePageState();
+}
 
-    void saveTextPassage() async {
-      try {
-        final user = FirebaseAuth.instance.currentUser;
-        if (user == null) throw Exception('User not logged in');
+class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
+  late VoiceSampleProvider voiceSampleProvider =
+      Provider.of<VoiceSampleProvider>(context);
+  late LanguageProvider languageProvider =
+      Provider.of<LanguageProvider>(context);
+  final voiceSampleController = VoiceSampleController();
+  final TextEditingController _voiceSampleNameController =
+      TextEditingController();
+  final TextEditingController _textPassageController = TextEditingController();
 
-        final textPassageModel = TextPassageModel(
-          id: '',
-          userId: user.uid,
-          content: voiceSampleProvider.textPassage,
-        );
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _textPassageController.text =
+          context.read<VoiceSampleProvider>().textPassage;
+      context.read<VoiceSampleProvider>().addListener(_onTextPassageChanged);
+    });
+  }
 
-        DocumentReference docRef = await FirebaseFirestore.instance
-            .collection('text_passages')
-            .add(textPassageModel.toJson());
+  void _onTextPassageChanged() {
+    voiceSampleProvider.setTextPassage(_textPassageController.text);
+  }
 
-        await docRef.update({'id': docRef.id});
-        showSuccessToast('Text passage saved successfully!');
-      } catch (e) {
-        showErrorToast('Failed to save text passage: $e');
-      }
+  @override
+  void dispose() {
+    _textPassageController.dispose();
+    super.dispose();
+  }
+
+  void saveTextPassage() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('User not logged in');
+
+      final textPassageModel = TextPassageModel(
+        id: '',
+        userId: user.uid,
+        content: voiceSampleProvider.textPassage,
+      );
+
+      DocumentReference docRef = await FirebaseFirestore.instance
+          .collection('text_passages')
+          .add(textPassageModel.toJson());
+
+      await docRef.update({'id': docRef.id});
+      showSuccessToast('Text passage saved successfully!');
+    } catch (e) {
+      showErrorToast('Failed to save text passage: $e');
     }
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    // Your existing build method content
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Voice Sample'),
+        title: const Text('Create Voice Sample',
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Choose the language'),
+            const Text(
+              'Choose the language',
+              style: TextStyle(color: Color(0xFF4E0189), fontSize: 16),
+            ),
             ElevatedButton(
               onPressed: () {
                 showModalBottomSheet(
@@ -237,18 +275,22 @@ class CreateVoiceSamplePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            const Text('Choose the voice module name'),
-            TextField(
-              onChanged: voiceSampleProvider.setVoiceSampleName,
-              decoration: const InputDecoration(
-                labelText: 'Voice Sample Name',
-              ),
+            FormContainerWidget(
+              controller: _voiceSampleNameController,
+              hintText: "Enter voice module name here",
+              isPasswordField: false,
+              fieldName: "Choose the voice module name",
+              onChanged: (value) {
+                voiceSampleProvider.setVoiceSampleName(value);
+              },
+              // Add any other parameters you need for validation, styling, etc.
             ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Read Text Passage'),
+                const Text('Read Text Passage',
+                    style: TextStyle(color: Color(0xFF4E0189), fontSize: 16)),
                 Row(
                   children: [
                     IconButton(
@@ -272,10 +314,7 @@ class CreateVoiceSamplePage extends StatelessWidget {
               ],
             ),
             TextField(
-              controller: TextEditingController(
-                text: voiceSampleProvider.textPassage,
-              ),
-              onChanged: voiceSampleProvider.setTextPassage,
+              controller: _textPassageController,
               readOnly: !voiceSampleProvider.isEditing,
               maxLines: 5,
               decoration: const InputDecoration(

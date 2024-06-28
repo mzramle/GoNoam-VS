@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:gonoam_v1/features/presentation/widgets/orange_button.dart';
 import 'package:provider/provider.dart';
 import '../../../../provider/voice_sample_provider.dart';
 import '../../../../controller/voice_sample_controller.dart';
@@ -22,7 +23,8 @@ class VoiceRecorderWidget extends StatelessWidget {
 
     return Column(
       children: [
-        ElevatedButton(
+        OrangeButton(
+          text: 'Start Recording',
           onPressed: voiceSampleProvider.isRecording
               ? null
               : () => voiceSampleController.startRecording(
@@ -30,9 +32,10 @@ class VoiceRecorderWidget extends StatelessWidget {
                     voiceSampleProvider.setRecordingStatus,
                     voiceSampleProvider.setRecordingTime,
                   ),
-          child: const Text('Start Recording'),
         ),
-        ElevatedButton(
+        const SizedBox(height: 30),
+        OrangeButton(
+          text: 'Stop Recording',
           onPressed: voiceSampleProvider.isRecording
               ? () => voiceSampleController.stopRecording(
                     voiceSampleProvider.setRecordingStatus,
@@ -41,7 +44,6 @@ class VoiceRecorderWidget extends StatelessWidget {
                     () => showErrorToast('Failed to save voice sample'),
                   )
               : null,
-          child: const Text('Stop Recording'),
         ),
       ],
     );

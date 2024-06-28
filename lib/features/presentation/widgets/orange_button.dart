@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class OrangeButton extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const OrangeButton({
     super.key,
@@ -23,7 +23,9 @@ class OrangeButton extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 18, color: Colors.white),
+        style: TextStyle(
+            fontSize: 18,
+            color: onPressed == null ? Colors.black : Colors.white),
       ),
     );
   }

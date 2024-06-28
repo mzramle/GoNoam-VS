@@ -1,86 +1,106 @@
 import 'package:flutter/material.dart';
-import 'package:speech_to_text/speech_to_text.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 class SpeechWidget extends StatefulWidget {
   final Function(String) onResult;
+  final Icon icon;
 
-  const SpeechWidget({required this.onResult, super.key, required Icon icon});
+  const SpeechWidget({required this.onResult, required this.icon, super.key});
 
   @override
   State<SpeechWidget> createState() => _SpeechWidgetState();
 }
 
 class _SpeechWidgetState extends State<SpeechWidget> {
-  late final SpeechToText _speechToText = SpeechToText();
+  final SpeechToText _speechToText = SpeechToText();
   bool _isListening = false;
   String _lastWords = '';
+  String _notification = '';
+  static const int _silenceTimeout = 5; // Timeout in seconds for silence
 
   @override
   void initState() {
     super.initState();
-    _initSpeech();
   }
 
-  /// This has to happen only once per app
-  void _initSpeech() async {
-    _isListening = await _speechToText.initialize();
-    setState(() {});
-  }
-
-  /// Each time to start a speech recognition session
   void _startListening() async {
-    await _speechToText.listen(onResult: _onSpeechResult);
-    setState(() {});
+    bool available = await _speechToText.initialize();
+    if (available) {
+      setState(() {
+        _isListening = true;
+        _notification = 'Listening...';
+      });
+      await _speechToText.listen(
+        onResult: _onSpeechResult,
+        listenFor: const Duration(seconds: 60), // Adjust as needed
+        pauseFor: const Duration(seconds: _silenceTimeout),
+        onSoundLevelChange: _onSoundLevelChange,
+        cancelOnError: true,
+        partialResults: true,
+      );
+    } else {
+      setState(() {
+        _isListening = false;
+        _notification = 'Speech recognition unavailable';
+      });
+    }
   }
 
-  /// Manually stop the active speech recognition session
-  /// Note that there are also timeouts that each platform enforces
-  /// and the SpeechToText plugin supports setting timeouts on the
-  /// listen method.
   void _stopListening() async {
     await _speechToText.stop();
-    setState(() {});
+    setState(() {
+      _isListening = false;
+      _notification = 'Recording stopped';
+    });
   }
 
-  /// This is the callback that the SpeechToText plugin calls when
-  /// the platform returns recognized words.
   void _onSpeechResult(SpeechRecognitionResult result) {
     setState(() {
       _lastWords = result.recognizedWords;
+      widget.onResult(_lastWords);
+      if (result.finalResult) {
+        _stopListening();
+      }
     });
+  }
+
+  void _onSoundLevelChange(double level) {
+    if (_isListening && level == 0.0) {
+      // If no sound is detected for a while, stop listening
+      Future.delayed(const Duration(seconds: _silenceTimeout), () {
+        if (_isListening) {
+          _stopListening();
+          setState(() {
+            _notification = 'No voice detected, stopped recording';
+          });
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: _listen,
-      child: Icon(_isListening ? Icons.mic : Icons.mic_none),
+    return Column(
+      children: [
+        FloatingActionButton(
+          onPressed: () {
+            if (_isListening) {
+              _stopListening();
+              setState(() {
+                _notification = 'Recording canceled';
+              });
+            } else {
+              _startListening();
+            }
+          },
+          child: Icon(_isListening ? Icons.mic : Icons.mic_none),
+        ),
+        if (_notification.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Text(_notification),
+        ],
+      ],
     );
-  }
-
-  void _listen() async {
-    if (!_isListening) {
-      bool available = await _speechToText.initialize(
-        // ignore: avoid_print
-        onStatus: (val) => print('onStatus: $val'),
-        // ignore: avoid_print
-        onError: (val) => print('onError: $val'),
-      );
-      if (available) {
-        setState(() => _isListening = true);
-        _speechToText.listen(
-          onResult: (val) => setState(() {
-            widget.onResult(val.recognizedWords);
-          }),
-        );
-      } else {
-        setState(() => _isListening = false);
-        _speechToText.stop();
-      }
-    } else {
-      setState(() => _isListening = false);
-      _speechToText.stop();
-    }
   }
 }

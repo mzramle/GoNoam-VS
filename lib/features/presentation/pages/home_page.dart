@@ -410,8 +410,8 @@ import 'package:flutter/services.dart';
 import 'package:gonoam_v1/features/presentation/widgets/orange_button.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import '../../../controller/language_provider.dart';
-import '../../../controller/translator_provider.dart';
+import '../../../provider/language_provider.dart';
+import '../../../provider/translator_provider.dart';
 import '../../../provider/voice_sample_provider.dart';
 import '../widgets/custom_loading.dart';
 import '../widgets/language_sheet.dart';
@@ -427,7 +427,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late FlutterTts flutterTts = FlutterTts();
   late Size mq;
-  final VoiceSampleProvider voiceSampleProvider = VoiceSampleProvider();
 
   @override
   void initState() {
