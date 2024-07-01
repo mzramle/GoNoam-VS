@@ -1,180 +1,19 @@
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-
-// import '../../../../controller/voice_sample_controller.dart';
-// import '../../widgets/form_container_widget.dart';
-// import '../translation/language_controller.dart';
-
-// class CreateVoiceSamplePage extends StatelessWidget {
-//   const CreateVoiceSamplePage({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final languageController = Get.put(LanguageController());
-//     final voiceSampleController = Get.put(VoiceSampleController());
-//     final _voiceNameController = TextEditingController();
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Create Voice Sample'),
-//         foregroundColor: Colors.white,
-//         backgroundColor: Colors.blue,
-//         leading: IconButton(
-//           icon: const Icon(Icons.arrow_back),
-//           onPressed: () {
-//             Navigator.of(context).pop();
-//           },
-//         ),
-//       ),
-//       body: SingleChildScrollView(
-//         child: Padding(
-//           padding: const EdgeInsets.all(16.0),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               const Text(
-//                 'Choose the language of the voice',
-//                 style: TextStyle(color: Color(0xFF4E0189), fontSize: 16),
-//               ),
-//               const SizedBox(height: 10),
-//               ElevatedButton(
-//                 onPressed: () {
-//                   Get.bottomSheet(
-//                     Container(
-//                       height: 700,
-//                       color: Colors.white,
-//                       child: ListView.builder(
-//                         itemCount: languageController.languages.length,
-//                         itemBuilder: (context, index) {
-//                           return ListTile(
-//                             title: Text(languageController.languages[index]),
-//                             onTap: () {
-//                               languageController.setChosenLanguage(
-//                                   languageController.languages[index]);
-//                               Navigator.of(context).pop();
-//                             },
-//                           );
-//                         },
-//                       ),
-//                     ),
-//                   );
-//                 },
-//                 child: Obx(
-//                   () => Text(
-//                     languageController.chosenLanguage.value.isEmpty
-//                         ? 'Select Language'
-//                         : languageController.chosenLanguage.value,
-//                   ),
-//                 ),
-//               ),
-//               const SizedBox(height: 20),
-//               FormContainerWidget(
-//                 controller: _voiceNameController,
-//                 hintText: "Enter voice module name here",
-//                 isPasswordField: false,
-//                 fieldName: "Enter Voice Module Name",
-//                 onChanged: (value) {
-//                   voiceSampleController.setVoiceSampleName(value);
-//                 },
-//               ),
-//               const SizedBox(height: 20),
-//               const Text(
-//                 'Read Text Passages',
-//                 style: TextStyle(color: Color(0xFF4E0189), fontSize: 16),
-//               ),
-//               const SizedBox(height: 10),
-//               Obx(() {
-//                 return Row(
-//                   children: [
-//                     Expanded(
-//                       child: TextFormField(
-//                         controller: TextEditingController()
-//                           ..text = voiceSampleController.textPassage.value,
-//                         maxLines: 10,
-//                         decoration: const InputDecoration(
-//                           border: OutlineInputBorder(),
-//                         ),
-//                         onChanged: (value) {
-//                           voiceSampleController.setTextPassage(value);
-//                         },
-//                         enabled: voiceSampleController.isRecording.value,
-//                       ),
-//                     ),
-//                     IconButton(
-//                       icon: Icon(
-//                         voiceSampleController.isRecording.value
-//                             ? Icons.save
-//                             : Icons.edit,
-//                       ),
-//                       onPressed: () {
-//                         voiceSampleController.isRecording.value =
-//                             !voiceSampleController.isRecording.value;
-//                       },
-//                     ),
-//                   ],
-//                 );
-//               }),
-//               const SizedBox(height: 10),
-//               const Center(
-//                   child: Text('It is optional to read text',
-//                       style: TextStyle(
-//                           fontWeight: FontWeight.bold, fontSize: 12))),
-//               const Spacer(),
-//               Center(
-//                 child: Obx(() {
-//                   return ElevatedButton(
-//                     onPressed: voiceSampleController.toggleRecording,
-//                     style: ElevatedButton.styleFrom(
-//                         backgroundColor: const Color(0xff003366),
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(100),
-//                         ),
-//                         minimumSize: const Size(30, 70)),
-//                     child: Icon(
-//                       voiceSampleController.isRecording.value
-//                           ? Icons.stop
-//                           : Icons.mic,
-//                       color: Colors.white,
-//                       size: 30,
-//                     ),
-//                   );
-//                 }),
-//               ),
-//               const SizedBox(height: 20),
-//               const Center(
-//                   child: Text('Press again to stop',
-//                       style: TextStyle(
-//                           fontWeight: FontWeight.bold, fontSize: 12))),
-//               const SizedBox(height: 20),
-//               Center(
-//                 child: ElevatedButton(
-//                   onPressed: () {
-//                     voiceSampleController.saveVoiceSample();
-//                   },
-//                   child: const Text('Save Voice Sample'),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../../provider/language_provider.dart';
-import '../../../../controller/voice_sample_controller.dart';
-import '../../../../helper/toast.dart';
-import '../../../../provider/voice_sample_provider.dart';
 import '../../../../model/text_passages_model.dart';
+import '../../../../provider/language_provider.dart';
+import '../../../../provider/voice_sample_provider.dart';
+import '../../../../controller/voice_sample_controller.dart';
+import '../../widgets/audio_player.dart';
+import '../../widgets/audio_recorder.dart';
 import '../../widgets/form_container_widget.dart';
 import '../../widgets/language_sheet.dart';
 import '../../widgets/voice_recorder_widget.dart';
+import '../../../../helper/toast.dart';
 
 class CreateVoiceSamplePage extends StatefulWidget {
   const CreateVoiceSamplePage({super.key});
@@ -188,13 +27,19 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
       Provider.of<VoiceSampleProvider>(context);
   late LanguageProvider languageProvider =
       Provider.of<LanguageProvider>(context);
+
+  bool showPlayer = false;
+  String? audioPath;
   final voiceSampleController = VoiceSampleController();
+
   final TextEditingController _voiceSampleNameController =
       TextEditingController();
   final TextEditingController _textPassageController = TextEditingController();
 
   @override
   void initState() {
+    showPlayer = false;
+
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _textPassageController.text =
@@ -237,7 +82,6 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Your existing build method content
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Voice Sample',
@@ -245,7 +89,7 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,7 +127,6 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
               onChanged: (value) {
                 voiceSampleProvider.setVoiceSampleName(value);
               },
-              // Add any other parameters you need for validation, styling, etc.
             ),
             const SizedBox(height: 20),
             Row(
@@ -294,11 +137,9 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
                 Row(
                   children: [
                     IconButton(
-                      icon: Icon(
-                        voiceSampleProvider.isEditing
-                            ? Icons.check
-                            : Icons.edit,
-                      ),
+                      icon: Icon(voiceSampleProvider.isEditing
+                          ? Icons.check
+                          : Icons.edit),
                       onPressed: () {
                         voiceSampleProvider.toggleEditing();
                       },
@@ -322,31 +163,42 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
               ),
             ),
             const SizedBox(height: 20),
-            Center(
-              child: Column(
-                children: [
-                  VoiceRecorderWidget(
-                    onSave: (File audioFile) async {
-                      try {
-                        await voiceSampleController.saveVoiceSample(
-                          audioFile,
-                          voiceSampleProvider.voiceSampleName,
-                          languageProvider.chosenLanguage,
-                          voiceSampleProvider.textPassage,
-                        );
-                        showSuccessToast('Voice Sample Saved Successfully');
-                      } catch (e) {
-                        showErrorToast('Error: $e');
-                      }
-                    },
-                    onTimeUpdate: (String recordingTime) {
-                      voiceSampleProvider.setRecordingTime(recordingTime);
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  Text('Recording Time: ${voiceSampleProvider.recordingTime}'),
-                ],
-              ),
+            const Text(
+              'Record Voice Sample',
+              style: TextStyle(color: Color(0xFF4E0189), fontSize: 16),
+            ),
+            const SizedBox(
+              height: 20,
+              width: double.infinity,
+            ),
+            SizedBox(
+              width: 400,
+              height: 200,
+              child: showPlayer
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      child: AudioPlayer(
+                        source: audioPath!,
+                        onDelete: () {
+                          setState(() => showPlayer = false);
+                        },
+                        voiceSampleName: voiceSampleProvider.voiceSampleName,
+                        chosenLanguage: languageProvider.chosenLanguage,
+                        onSave: (voiceSampleName, chosenLanguage, audioPath) {
+                          voiceSampleController.getStoreVoiceSample(
+                              voiceSampleName, chosenLanguage, audioPath);
+                        },
+                      ),
+                    )
+                  : Recorder(
+                      onStop: (path) {
+                        if (kDebugMode) print('Recorded file path: $path');
+                        setState(() {
+                          audioPath = path;
+                          showPlayer = true;
+                        });
+                      },
+                    ),
             ),
           ],
         ),
@@ -354,3 +206,6 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
     );
   }
 }
+
+
+// 

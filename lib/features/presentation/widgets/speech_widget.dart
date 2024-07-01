@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
-import 'package:speech_to_text/speech_to_text.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:avatar_glow/avatar_glow.dart';
+
+import '../../../helper/toast.dart';
 
 class SpeechWidget extends StatefulWidget {
   final Function(String) onResult;
@@ -13,14 +16,14 @@ class SpeechWidget extends StatefulWidget {
 }
 
 class _SpeechWidgetState extends State<SpeechWidget> {
-  final SpeechToText _speechToText = SpeechToText();
+  late stt.SpeechToText _speechToText;
   bool _isListening = false;
   String _lastWords = '';
-  String _notification = '';
-  static const int _silenceTimeout = 5; // Timeout in seconds for silence
+  static const int _silenceTimeout = 20; // Timeout in seconds for silence
 
   @override
   void initState() {
+    _speechToText = stt.SpeechToText();
     super.initState();
   }
 
@@ -29,20 +32,22 @@ class _SpeechWidgetState extends State<SpeechWidget> {
     if (available) {
       setState(() {
         _isListening = true;
-        _notification = 'Listening...';
+        showToast(message: 'Listening...');
       });
       await _speechToText.listen(
         onResult: _onSpeechResult,
-        listenFor: const Duration(seconds: 60), // Adjust as needed
+        listenFor: const Duration(seconds: 120),
         pauseFor: const Duration(seconds: _silenceTimeout),
         onSoundLevelChange: _onSoundLevelChange,
+        // ignore: deprecated_member_use
         cancelOnError: true,
+        // ignore: deprecated_member_use
         partialResults: true,
       );
     } else {
       setState(() {
         _isListening = false;
-        _notification = 'Speech recognition unavailable';
+        showErrorToast('Speech recognition unavailable');
       });
     }
   }
@@ -51,7 +56,10 @@ class _SpeechWidgetState extends State<SpeechWidget> {
     await _speechToText.stop();
     setState(() {
       _isListening = false;
-      _notification = 'Recording stopped';
+      showSuccessToast('Recording stopped');
+    });
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {});
     });
   }
 
@@ -69,10 +77,10 @@ class _SpeechWidgetState extends State<SpeechWidget> {
     if (_isListening && level == 0.0) {
       // If no sound is detected for a while, stop listening
       Future.delayed(const Duration(seconds: _silenceTimeout), () {
-        if (_isListening) {
+        if (_isListening = false) {
           _stopListening();
           setState(() {
-            _notification = 'No voice detected, stopped recording';
+            showToast(message: 'No voice detected, stopped recording');
           });
         }
       });
@@ -83,23 +91,25 @@ class _SpeechWidgetState extends State<SpeechWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        FloatingActionButton(
-          onPressed: () {
-            if (_isListening) {
-              _stopListening();
-              setState(() {
-                _notification = 'Recording canceled';
-              });
-            } else {
-              _startListening();
-            }
-          },
-          child: Icon(_isListening ? Icons.mic : Icons.mic_none),
+        AvatarGlow(
+          animate: _isListening,
+          glowColor: Colors.purple,
+          duration: const Duration(milliseconds: 1000),
+          repeat: true,
+          child: FloatingActionButton(
+            onPressed: () {
+              if (_isListening) {
+                _stopListening();
+              } else {
+                _startListening();
+              }
+            },
+            child: Icon(
+              _isListening ? Icons.mic : Icons.mic_none,
+              color: Colors.amber,
+            ),
+          ),
         ),
-        if (_notification.isNotEmpty) ...[
-          const SizedBox(height: 10),
-          Text(_notification),
-        ],
       ],
     );
   }

@@ -1,73 +1,11 @@
-// // controllers/voice_sample_controller.dart
-// import 'dart:io';
-
-// import 'package:flutter_sound/flutter_sound.dart';
-// import 'package:get/get.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:path_provider/path_provider.dart';
-// import 'package:path/path.dart' as path;
-
-// import '../model/voice_sample_model.dart';
-
-// class VoiceSampleController extends GetxController {
-//   var voiceSampleName = ''.obs;
-//   var chosenLanguage = ''.obs;
-//   var textPassage = ''.obs;
-//   var isRecording = false.obs;
-//   late FlutterSoundRecorder _recorder;
-//   String? audioFilePath;
-
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     _recorder = FlutterSoundRecorder();
-//     _recorder.openRecorder();
-//   }
-
-//   void setVoiceSampleName(String name) {
-//     voiceSampleName.value = name;
-//   }
-
-//   void setTextPassage(String text) {
-//     textPassage.value = text;
-//   }
-
-//   void toggleRecording() async {
-//     if (isRecording.value) {
-//       await _recorder.stopRecorder();
-//       isRecording.value = false;
-//     } else {
-//       Directory tempDir = await getTemporaryDirectory();
-//       audioFilePath = path.join(
-//           tempDir.path, '${DateTime.now().millisecondsSinceEpoch}.mp3');
-//       await _recorder.startRecorder(
-//         toFile: audioFilePath,
-//         codec: Codec.aacMP4,
-//       );
-//       isRecording.value = true;
-//     }
-//   }
-
-//   Future<void> saveVoiceSample() async {
-//     final newVoiceSample = VoiceSample(
-//       name: voiceSampleName.value,
-//       language: chosenLanguage.value,
-//       textPassage: textPassage.value,
-//       audioPath: audioFilePath ?? '',
-//       creationDate: Timestamp.now(),
-//     );
-
-//     await FirebaseFirestore.instance
-//         .collection('voice_samples')
-//         .add(newVoiceSample.toMap());
-//   }
-// }
-
 import 'dart:async';
 import 'dart:io';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 import '../helper/toast.dart';
@@ -75,32 +13,50 @@ import '../model/voice_sample_model.dart';
 
 class VoiceSampleController {
   final AudioRecorder _recorder = AudioRecorder();
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  ValueChanged<String> setRecordingTime = (String value) {};
   String? _recordedFilePath;
+  Timer? _recordingTimer;
 
   Future<void> startRecording(
       String voiceSampleName,
       ValueChanged<bool> setRecordingStatus,
       ValueChanged<String> setRecordingTime) async {
-    final bool isPermissionGranted = await _recorder.hasPermission();
-    if (!isPermissionGranted) {
-      throw Exception("Microphone permission denied");
+    // Request microphone permission
+    var status = await Permission.microphone.request();
+    if (status == PermissionStatus.denied) {
+      // Permission denied but not permanently. You can ask the user to grant permission again.
+      // Here, you might want to return or handle it differently instead of throwing an exception.
+      showToast(
+          message:
+              "Microphone permission denied. Please grant permission to record audio.");
+      return; // Return from the function, giving the user another chance later.
+    } else if (status == PermissionStatus.permanentlyDenied) {
+      // The user opted to never again see the permission request dialog for this app.
+      throw Exception(
+          "Microphone permission permanently denied. Please enable it in app settings.");
+    } else if (status != PermissionStatus.granted) {
+      // Handle other statuses if necessary (e.g., restricted).
+      throw Exception("Unable to access the microphone. Status: $status");
     }
 
+    // If permission is granted, proceed with recording
     final directory = await getApplicationDocumentsDirectory();
     String fileName = 'recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
     _recordedFilePath = '${directory.path}/$fileName';
-
     const config = RecordConfig(
       encoder: AudioEncoder.aacLc,
       sampleRate: 44100,
       bitRate: 128000,
     );
-
     await _recorder.start(config, path: _recordedFilePath!);
     setRecordingStatus(true);
     showToast(message: 'Starts recording now');
 
-    Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
+    _recordingTimer =
+        Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
       if (!await _recorder.isRecording()) {
         timer.cancel();
       }
@@ -111,53 +67,106 @@ class VoiceSampleController {
     });
   }
 
-  Future<void> stopRecording(
-      ValueChanged<bool> setRecordingStatus,
-      Function(File) saveVoiceSample,
-      VoidCallback showSuccessToast,
-      VoidCallback showErrorToast) async {
-    final path = await _recorder.stop();
+  // Future<void> stopRecording(ValueChanged<bool> setRecordingStatus,
+  //     String voiceSampleName, String chosenLanguage, String textPassage) async {
+  //   // Check if the recorder is currently recording before attempting to stop
+  //   if (await _recorder.isRecording()) {
+  //     final path = await _recorder.stop();
+  //     // await _recorder.dispose();
+  //     _recordingTimer?.cancel(); // Cancel the timer
+  //     setRecordingStatus(false);
+  //     if (path != null) {
+  //       File audioFile = File(path);
+  //       await saveVoiceSample(audioFile, voiceSampleName, chosenLanguage,
+  //           textPassage); // Updated to pass additional parameters
+  //       showToast(message: 'Voice Sample Saved Successfully');
+  //     } else {
+  //       showToast(message: 'Failed to save voice sample');
+  //     }
+  //   } else {
+  //     showToast(
+  //         message: 'Recorder is not active or has already been disposed.');
+  //   }
+  // }
+
+  Future<void> pauseRecording(
+      ValueChanged<bool> setRecordingStatus, VoidCallback showToast) async {
+    _recordingTimer?.cancel();
     setRecordingStatus(false);
-    showToast(message: 'Recording Stopped.');
-    if (path != null) {
-      File audioFile = File(path);
-      await saveVoiceSample(audioFile);
-      showSuccessToast();
-    } else {
-      showErrorToast();
+    await _recorder.pause();
+    showToast();
+  }
+
+  Future<void> resumeRecording(
+      ValueChanged<bool> setRecordingStatus, VoidCallback showToast) async {
+    _recordingTimer =
+        Timer.periodic(const Duration(seconds: 1), (Timer timer) async {
+      if (!await _recorder.isRecording()) {
+        timer.cancel();
+      }
+      final duration = Duration(seconds: timer.tick);
+      final minutes = duration.inMinutes.toString().padLeft(2, '0');
+      final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+      setRecordingTime('$minutes:$seconds');
+    });
+    setRecordingStatus(true);
+    await _recorder.resume();
+    showToast();
+  }
+
+  Future<void> playAudio(String filePath) async {
+    await _audioPlayer.play(DeviceFileSource(filePath));
+  }
+
+  Future<void> pauseAudio() async {
+    await _audioPlayer.pause();
+  }
+
+  Future<void> stopAudio() async {
+    await _audioPlayer.stop();
+  }
+
+  Future<void> seekAudio(Duration position) async {
+    await _audioPlayer.seek(position);
+  }
+
+  Future<void> saveVoiceSample(String audioPath) async {
+    // Assuming you have these details from the user input or some other logic in your app
+    String voiceSampleName =
+        "Sample Name"; // Placeholder, replace with actual data
+    String chosenLanguage = "en"; // Placeholder, replace with actual data
+
+    await _firestore.collection('voice_samples').add({
+      'audioPath': audioPath,
+      'name': voiceSampleName,
+      'language': chosenLanguage,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> _storeVoiceSampleData(
+      String voiceSampleName, String chosenLanguage, String audioPath) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('User not logged in');
+      final voiceSampleData = {
+        'voiceSampleName': voiceSampleName,
+        'chosenLanguage': chosenLanguage,
+        'audioPath': audioPath,
+        'userId': user.uid,
+        'timeCreated': FieldValue.serverTimestamp(), // Add time created
+      };
+      await FirebaseFirestore.instance
+          .collection('voice_samples')
+          .add(voiceSampleData);
+      showSuccessToast('Voice sample saved successfully!');
+    } catch (e) {
+      showErrorToast('Failed to save voice sample: $e');
     }
   }
 
-  Future<void> saveVoiceSample(File audioFile, String voiceSampleName,
-      String chosenLanguage, String textPassage) async {
-    try {
-      DateTime now = DateTime.now();
-      String fileName = "${voiceSampleName}_${now.toIso8601String()}.m4a";
-      String fileType = 'm4a';
-
-      Reference storageRef =
-          FirebaseStorage.instance.ref().child('voice_samples/$fileName');
-      UploadTask uploadTask = storageRef.putFile(audioFile);
-      TaskSnapshot snapshot = await uploadTask;
-
-      String audioUrl = await snapshot.ref.getDownloadURL();
-
-      VoiceSampleModel voiceSample = VoiceSampleModel(
-        id: '',
-        name: voiceSampleName,
-        language: chosenLanguage,
-        textPassage: textPassage,
-        audioUrl: audioUrl,
-        fileType: fileType,
-        creationDate: now,
-      );
-
-      DocumentReference docRef = await FirebaseFirestore.instance
-          .collection('voice_samples')
-          .add(voiceSample.toJson());
-      await docRef.update({'id': docRef.id});
-    } on FirebaseException catch (e) {
-      throw Exception('Error saving voice sample: $e');
-    }
+  Future<void> getStoreVoiceSample(
+      String voiceSampleName, String chosenLanguage, String audioPath) async {
+    _storeVoiceSampleData(voiceSampleName, chosenLanguage, audioPath);
   }
 }
