@@ -199,8 +199,11 @@ class _HomePageState extends State<HomePage> {
                         icon: const Icon(Icons.clear, color: Colors.red),
                       ),
                       hintText: 'Type here...',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFF4E0189)),
+                      ),
+                      filled: true,
+                      fillColor: const Color.fromARGB(172, 239, 237, 244),
                     ),
                   ),
                 ),
@@ -214,8 +217,8 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         TextFormField(
                           controller: translateProvider.resultC,
-                          minLines: 6, // Minimum lines for the input
-                          maxLines: 10, // Allows the input to grow,
+                          minLines: 6,
+                          maxLines: 10,
                           readOnly: true,
                           decoration: InputDecoration(
                             suffixIcon: Row(
@@ -248,8 +251,11 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ],
                             ),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15)),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFF4E0189)),
+                            ),
+                            filled: true,
+                            fillColor: const Color.fromARGB(172, 239, 237, 244),
                           ),
                         ),
                       ],
@@ -272,8 +278,6 @@ class _HomePageState extends State<HomePage> {
                             translateProvider.textC.text = text;
                             translateProvider.googleTranslate;
                           },
-                          icon: const Icon(Icons.mic,
-                              size: 48, color: Colors.orange),
                         ),
                       ],
                     ),

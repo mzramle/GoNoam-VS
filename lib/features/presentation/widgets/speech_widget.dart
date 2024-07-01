@@ -7,9 +7,8 @@ import '../../../helper/toast.dart';
 
 class SpeechWidget extends StatefulWidget {
   final Function(String) onResult;
-  final Icon icon;
 
-  const SpeechWidget({required this.onResult, required this.icon, super.key});
+  const SpeechWidget({required this.onResult, super.key});
 
   @override
   State<SpeechWidget> createState() => _SpeechWidgetState();
@@ -36,7 +35,7 @@ class _SpeechWidgetState extends State<SpeechWidget> {
       });
       await _speechToText.listen(
         onResult: _onSpeechResult,
-        listenFor: const Duration(seconds: 120),
+        listenFor: const Duration(minutes: 2),
         pauseFor: const Duration(seconds: _silenceTimeout),
         onSoundLevelChange: _onSoundLevelChange,
         // ignore: deprecated_member_use
@@ -73,6 +72,10 @@ class _SpeechWidgetState extends State<SpeechWidget> {
     });
   }
 
+  void disposeSpeechRecognition() {
+    _speechToText.cancel();
+  }
+
   void _onSoundLevelChange(double level) {
     if (_isListening && level == 0.0) {
       // If no sound is detected for a while, stop listening
@@ -88,6 +91,12 @@ class _SpeechWidgetState extends State<SpeechWidget> {
   }
 
   @override
+  void dispose() {
+    disposeSpeechRecognition();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -97,6 +106,8 @@ class _SpeechWidgetState extends State<SpeechWidget> {
           duration: const Duration(milliseconds: 1000),
           repeat: true,
           child: FloatingActionButton(
+            backgroundColor:
+                _isListening ? Colors.amberAccent : Colors.deepOrange,
             onPressed: () {
               if (_isListening) {
                 _stopListening();
@@ -106,7 +117,7 @@ class _SpeechWidgetState extends State<SpeechWidget> {
             },
             child: Icon(
               _isListening ? Icons.mic : Icons.mic_none,
-              color: Colors.amber,
+              color: Colors.white,
             ),
           ),
         ),

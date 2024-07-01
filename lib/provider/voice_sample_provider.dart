@@ -1,6 +1,10 @@
 import 'dart:io';
-
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../helper/toast.dart';
+import '../model/text_passages_model.dart';
 
 class VoiceSampleProvider extends ChangeNotifier {
   String voiceSampleName = "";
@@ -57,6 +61,79 @@ class VoiceSampleProvider extends ChangeNotifier {
   void toggleEditing() {
     isEditing = !isEditing;
     notifyListeners();
+  }
+
+  Future<void> _storeVoiceSampleData(
+      String voiceSampleName, String chosenLanguage, String audioPath) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('User not logged in');
+      final voiceSampleData = {
+        'voiceSampleName': voiceSampleName,
+        'chosenLanguage': chosenLanguage,
+        'audioPath': audioPath,
+        'userId': user.uid,
+        'timeCreated': FieldValue.serverTimestamp(), // Add time created
+      };
+      await FirebaseFirestore.instance
+          .collection('voice_samples')
+          .add(voiceSampleData);
+      showSuccessToast('Voice sample saved successfully!');
+    } catch (e) {
+      showErrorToast('Failed to save voice sample: $e');
+    }
+  }
+
+  Future<void> getStoreVoiceSample(
+      String voiceSampleName, String chosenLanguage, String audioPath) async {
+    _storeVoiceSampleData(voiceSampleName, chosenLanguage, audioPath);
+  }
+
+  Future<void> saveTextPassage(String textPassage) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('User not logged in');
+
+      final textPassageModel = TextPassageModel(
+        id: '',
+        userId: user.uid,
+        content: textPassage,
+      );
+
+      DocumentReference docRef = await FirebaseFirestore.instance
+          .collection('text_passages')
+          .add(textPassageModel.toJson());
+
+      await docRef.update({'id': docRef.id});
+      showSuccessToast('Text passage saved successfully!');
+    } catch (e) {
+      showErrorToast('Failed to save text passage: $e');
+    }
+  }
+
+  // Method to fetch voice samples
+  Future<List<QueryDocumentSnapshot>> fetchVoiceSamples() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) throw Exception('User not logged in');
+    final data = await FirebaseFirestore.instance
+        .collection('voice_samples')
+        .where('userId', isEqualTo: user.uid)
+        .get();
+    return data.docs;
+  }
+
+// Updated deleteVoiceSample method to notify listeners
+  Future<void> deleteVoiceSample(String docId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('voice_samples')
+          .doc(docId)
+          .delete();
+      showSuccessToast('Voice sample deleted successfully');
+      notifyListeners(); // Notify listeners to refresh the UI
+    } catch (e) {
+      showErrorToast('Cannot delete voice sample. ERROR: $e');
+    }
   }
 }
 

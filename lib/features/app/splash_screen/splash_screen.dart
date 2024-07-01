@@ -30,6 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
     mq = MediaQuery.sizeOf(context);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           Center(

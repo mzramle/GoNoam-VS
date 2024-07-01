@@ -9,6 +9,7 @@ import 'package:gonoam_v1/features/presentation/pages/voice_synthesis/create_voi
 import 'package:gonoam_v1/features/presentation/pages/voice_synthesis/voice_synthesis_main_page.dart';
 import 'package:gonoam_v1/features/presentation/widgets/stt_test_widget.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+import 'features/presentation/pages/voice_synthesis/delete_voices_page.dart';
 import 'provider/history_translation_provider.dart';
 import 'provider/language_provider.dart';
 import 'provider/translator_provider.dart';
@@ -61,7 +62,7 @@ class MyApp extends StatelessWidget {
       title: 'GoNoam Translation',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: true,
       ),
       initialRoute: '/splash',
@@ -92,6 +93,8 @@ class MyApp extends StatelessWidget {
         GetPage(
             name: '/create_voice_sample_page',
             page: () => const CreateVoiceSamplePage()),
+        GetPage(
+            name: '/delete_voices_page', page: () => const DeleteVoicesPage()),
       ],
     );
   }
@@ -105,6 +108,7 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PersistentTabView(
+      backgroundColor: const Color.fromARGB(172, 239, 237, 244),
       controller: _controller,
       tabs: buildScreens(),
       navBarBuilder: (navBarConfig) => Style3BottomNavBar(

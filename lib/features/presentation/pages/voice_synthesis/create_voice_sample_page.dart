@@ -1,19 +1,12 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../../model/text_passages_model.dart';
 import '../../../../provider/language_provider.dart';
 import '../../../../provider/voice_sample_provider.dart';
-import '../../../../controller/voice_sample_controller.dart';
 import '../../widgets/audio_player.dart';
 import '../../widgets/audio_recorder.dart';
 import '../../widgets/form_container_widget.dart';
 import '../../widgets/language_sheet.dart';
-import '../../widgets/voice_recorder_widget.dart';
-import '../../../../helper/toast.dart';
 
 class CreateVoiceSamplePage extends StatefulWidget {
   const CreateVoiceSamplePage({super.key});
@@ -30,7 +23,7 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
 
   bool showPlayer = false;
   String? audioPath;
-  final voiceSampleController = VoiceSampleController();
+  // final voiceSampleController = VoiceSampleController();
 
   final TextEditingController _voiceSampleNameController =
       TextEditingController();
@@ -56,28 +49,6 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
   void dispose() {
     _textPassageController.dispose();
     super.dispose();
-  }
-
-  void saveTextPassage() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception('User not logged in');
-
-      final textPassageModel = TextPassageModel(
-        id: '',
-        userId: user.uid,
-        content: voiceSampleProvider.textPassage,
-      );
-
-      DocumentReference docRef = await FirebaseFirestore.instance
-          .collection('text_passages')
-          .add(textPassageModel.toJson());
-
-      await docRef.update({'id': docRef.id});
-      showSuccessToast('Text passage saved successfully!');
-    } catch (e) {
-      showErrorToast('Failed to save text passage: $e');
-    }
   }
 
   @override
@@ -147,7 +118,10 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
                     IconButton(
                       icon: const Icon(Icons.save),
                       onPressed: voiceSampleProvider.isEditing
-                          ? saveTextPassage
+                          ? () async {
+                              await voiceSampleProvider.saveTextPassage(
+                                  voiceSampleProvider.textPassage);
+                            }
                           : null,
                     ),
                   ],
@@ -159,7 +133,11 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
               readOnly: !voiceSampleProvider.isEditing,
               maxLines: 5,
               decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Color.fromARGB(255, 230, 228, 235),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFF4E0189)),
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -185,7 +163,7 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
                         voiceSampleName: voiceSampleProvider.voiceSampleName,
                         chosenLanguage: languageProvider.chosenLanguage,
                         onSave: (voiceSampleName, chosenLanguage, audioPath) {
-                          voiceSampleController.getStoreVoiceSample(
+                          voiceSampleProvider.getStoreVoiceSample(
                               voiceSampleName, chosenLanguage, audioPath);
                         },
                       ),

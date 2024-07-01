@@ -1,37 +1,6 @@
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-
-// import '../widgets/app_bottom_navigation_bar.dart';
-
-// class VoiceSynthesisMainPage extends StatelessWidget {
-//   const VoiceSynthesisMainPage({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Voice Synthesis'),
-//       ),
-//       body: Center(
-//         child: Text('Voice Synthesis Page Content'),
-//       ),
-//       bottomNavigationBar: BottomNavigationBarWidget(
-//         selectedIndex: 2,
-//         onItemSelected: (index) {
-//           if (index == 2) return;
-//           if (index == 0)
-//             Get.offNamed('/home');
-//           else if (index == 1) Get.offNamed('/history_translation');
-//         },
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:gonoam_v1/features/presentation/pages/voice_synthesis/create_voice_sample_page.dart';
 
 import '../../widgets/orange_button.dart';
 
@@ -112,7 +81,9 @@ class VoiceSynthesisMainPage extends StatelessWidget {
               Center(
                 child: OrangeButton(
                   text: 'Delete Voices',
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('/delete_voices_page');
+                  },
                 ),
               ),
               const SizedBox(height: 30),
