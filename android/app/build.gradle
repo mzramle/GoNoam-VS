@@ -68,11 +68,11 @@ android {
     }
 
 
-    packagingOptions {
+    // packagingOptions {
 
-        pickFirst 'lib/arm64-v8a/libonnxruntime.so'
-        pickFirst 'lib/armeabi-v7a/libonnxruntime.so'
-    }
+    //     pickFirst 'lib/arm64-v8a/libonnxruntime.so'
+    //     pickFirst 'lib/armeabi-v7a/libonnxruntime.so'
+    // }
 
     buildTypes {
         release {
