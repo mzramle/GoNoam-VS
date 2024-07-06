@@ -1,20 +1,22 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gonoam_v1/helper/toast.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
-class TTSTabPage2 extends StatefulWidget {
-  const TTSTabPage2({super.key});
+class TrainedVoiceLibraryWork extends StatefulWidget {
+  const TrainedVoiceLibraryWork({super.key});
 
   @override
-  State<TTSTabPage2> createState() => _TTSTabPage2State();
+  State<TrainedVoiceLibraryWork> createState() =>
+      _TrainedVoiceLibraryWorkState();
 }
 
-class _TTSTabPage2State extends State<TTSTabPage2> {
+class _TrainedVoiceLibraryWorkState extends State<TrainedVoiceLibraryWork> {
   List<String> _models = [];
   List<String> _indexes = [];
   List<Map<String, dynamic>> _voices = [];
@@ -53,6 +55,9 @@ class _TTSTabPage2State extends State<TTSTabPage2> {
   String? _embedderModelCustom;
   String _searchQuery = '';
   AudioPlayer audioPlayer = AudioPlayer();
+  String _modelName = '';
+  String _modelLanguage = '';
+  TextEditingController textController = TextEditingController();
 
   @override
   void initState() {
@@ -115,7 +120,7 @@ class _TTSTabPage2State extends State<TTSTabPage2> {
           'rms_mix_rate': _rmsMixRate,
           'protect': _protect,
           'hop_length': _hopLength,
-          'f0method': _f0method,
+          'f0method': _selectedF0Method,
           'output_tts_path': _outputTTSPath,
           'output_rvc_path': _outputRVCPath,
           'model_file': _selectedModel,
@@ -144,6 +149,13 @@ class _TTSTabPage2State extends State<TTSTabPage2> {
         setState(() {
           _outputFile = filePath;
         });
+
+        // Wait for audio to finish playing and then delete the file
+        await audioPlayer.onPlayerComplete.first;
+        await Future.delayed(const Duration(seconds: 5));
+        if (await file.exists()) {
+          await file.delete();
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to convert text to speech')),
@@ -151,6 +163,46 @@ class _TTSTabPage2State extends State<TTSTabPage2> {
       }
     } catch (e) {
       showErrorToast('Failed to convert text to speech: $e');
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> _saveVoiceModelSetting() async {
+    try {
+      await FirebaseFirestore.instance.collection('voice_model_setting').add({
+        'model_name': _modelName,
+        'model_language': _modelLanguage,
+        // 'tts_text': _textInput,
+        'tts_voice': _selectedVoice,
+        'tts_rate': _ttsRate,
+        'pitch': _pitch,
+        'filter_radius': _filterRadius,
+        'index_rate': _indexRate,
+        'rms_mix_rate': _rmsMixRate,
+        'protect': _protect,
+        'hop_length': _hopLength,
+        'f0method': _selectedF0Method,
+        'output_tts_path': _outputTTSPath,
+        'output_rvc_path': _outputRVCPath,
+        'model_file': _selectedModel,
+        'index_file': _selectedIndex,
+        'split_audio': _splitAudio,
+        'autotune': _autotune,
+        'clean_audio': _cleanAudio,
+        'clean_strength': _cleanStrength,
+        'export_format': _exportFormat,
+        'embedder_model': _embedderModel,
+        'embedder_model_custom': _embedderModelCustom,
+        'upscale_audio': _upscaleAudio,
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Voice model setting saved')),
+      );
+    } catch (e) {
+      showErrorToast('Failed to save voice model setting: $e');
       if (kDebugMode) {
         print(e);
       }
@@ -236,14 +288,13 @@ class _TTSTabPage2State extends State<TTSTabPage2> {
             Text('TTS Rate: $_ttsRate'),
             Slider(
               label: "TTS Rate",
-              value: _ttsRate.toDouble(), // Convert int to double for Slider
+              value: _ttsRate.toDouble(),
               min: 0,
               max: 100,
-              divisions: 100, // Specify divisions for integer values
+              divisions: 100,
               onChanged: (newValue) {
                 setState(() {
-                  _ttsRate =
-                      newValue.round(); // Convert back to int and update state
+                  _ttsRate = newValue.round();
                 });
               },
             ),
@@ -342,11 +393,21 @@ class _TTSTabPage2State extends State<TTSTabPage2> {
             ),
             TextField(
               decoration: const InputDecoration(
-                labelText: 'Enter Output File Name',
+                labelText: 'Enter Model Name',
               ),
               onChanged: (text) {
                 setState(() {
-                  _outputFile = text;
+                  _modelName = text;
+                });
+              },
+            ),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Enter Model Language',
+              ),
+              onChanged: (text) {
+                setState(() {
+                  _modelLanguage = text;
                 });
               },
             ),
@@ -354,6 +415,11 @@ class _TTSTabPage2State extends State<TTSTabPage2> {
             ElevatedButton(
               onPressed: _convertTTS,
               child: const Text('Convert'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _saveVoiceModelSetting,
+              child: const Text('Save voice model setting'),
             ),
             const SizedBox(height: 20),
             if (_outputFile.isNotEmpty) ...[

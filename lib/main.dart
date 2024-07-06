@@ -17,8 +17,7 @@ import 'package:gonoam_v1/features/presentation/pages/voice_synthesis/testvoiceF
 import 'features/presentation/pages/voice_synthesis/delete_voices_page.dart';
 import 'package:gonoam_v1/features/presentation/widgets/stt_test_widget.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
-import 'features/presentation/pages/voice_synthesis/onnx_flutter_tts.dart';
-import 'features/presentation/pages/voice_synthesis/testvoiceFlask2.dart';
+import 'features/presentation/pages/voice_synthesis/trained_voice_library_workPage.dart';
 import 'features/presentation/widgets/app_bottom_navigation_bar.dart';
 import 'package:provider/provider.dart';
 import 'provider/voice_sample_provider.dart';
@@ -102,7 +101,9 @@ class MyApp extends StatelessWidget {
         GetPage(
             name: '/delete_voices_page', page: () => const DeleteVoicesPage()),
         GetPage(name: '/test_flask_page', page: () => TTSTabPage()),
-        GetPage(name: '/test_flask2_page', page: () => const TTSTabPage2()),
+        GetPage(
+            name: '/trained_voice_library_work_page',
+            page: () => const TrainedVoiceLibraryWork()),
       ],
     );
   }

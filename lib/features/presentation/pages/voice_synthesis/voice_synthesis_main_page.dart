@@ -99,18 +99,10 @@ class VoiceSynthesisMainPage extends StatelessWidget {
               const SizedBox(height: 20),
               Center(
                 child: OrangeButton(
-                  text: 'Test Flask Voices',
+                  text: 'Trained Voice Library Work',
                   onPressed: () {
-                    Navigator.of(context).pushNamed('/test_flask_page');
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
-              Center(
-                child: OrangeButton(
-                  text: 'Test Flask Voices 2',
-                  onPressed: () {
-                    Navigator.of(context).pushNamed('/test_flask2_page');
+                    Navigator.of(context)
+                        .pushNamed('/trained_voice_library_work_page');
                   },
                 ),
               ),
