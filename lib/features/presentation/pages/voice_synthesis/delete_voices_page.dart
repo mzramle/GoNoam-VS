@@ -29,6 +29,52 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
     return voiceSampleProvider.fetchVoiceSamples();
   }
 
+  Future<List<QueryDocumentSnapshot>> _fetchVoiceModels() async {
+    return FirebaseFirestore.instance
+        .collection('voice_models')
+        .get()
+        .then((snapshot) => snapshot.docs);
+  }
+
+  Widget _buildVoiceModelList() {
+    return FutureBuilder<List<QueryDocumentSnapshot>>(
+      future: _fetchVoiceModels(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No voice models found'));
+        } else {
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              final doc = snapshot.data![index];
+              final voiceModel = doc.data() as Map<String, dynamic>;
+              return ListTile(
+                title: Text(voiceModel['name']),
+                subtitle: Text(voiceModel['language']),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _deleteVoiceModel(doc.id),
+                ),
+              );
+            },
+          );
+        }
+      },
+    );
+  }
+
+  Future<void> _deleteVoiceModel(String docId) async {
+    await FirebaseFirestore.instance
+        .collection('voice_models')
+        .doc(docId)
+        .delete();
+    // Optionally, refresh the list or show a confirmation message
+  }
+
   @override
   Widget build(BuildContext context) {
     // Access VoiceSampleProvider from the context
@@ -39,6 +85,7 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
         title:
             const Text('Delete Voices', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
       body: Consumer<VoiceSampleProvider>(
         builder: (context, provider, child) {
@@ -54,6 +101,7 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
               } else {
                 return Column(
                   children: [
+                    const SizedBox(height: 15),
                     const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text('Voice Samples',
@@ -134,6 +182,7 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
                             height: 10), // Add space between rows
                       ),
                     ),
+                    Expanded(child: _buildVoiceModelList()),
                   ],
                 );
               }

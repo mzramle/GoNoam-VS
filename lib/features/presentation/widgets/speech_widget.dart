@@ -63,13 +63,14 @@ class _SpeechWidgetState extends State<SpeechWidget> {
   }
 
   void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = result.recognizedWords;
-      widget.onResult(_lastWords);
-      if (result.finalResult) {
+    if (result.finalResult) {
+      setState(() {
+        _lastWords = result.recognizedWords;
+        // Trigger the callback only when the final result is obtained
+        widget.onResult(_lastWords);
         _stopListening();
-      }
-    });
+      });
+    }
   }
 
   void disposeSpeechRecognition() {

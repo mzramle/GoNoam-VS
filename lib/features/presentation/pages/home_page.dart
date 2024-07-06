@@ -274,9 +274,17 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(height: 20),
                         SpeechWidget(
-                          onResult: (text) {
+                          onResult: (text) async {
+                            // Set the recognized text as the source text
                             translateProvider.textC.text = text;
-                            translateProvider.googleTranslate;
+                            // Wait for the UI to update with the new text
+                            await Future.delayed(
+                                const Duration(milliseconds: 100));
+                            // Immediately trigger translation
+                            await translateProvider.googleTranslate();
+                            // After translation, trigger Text-to-Speech on the translated text
+                            _speakText(translateProvider.resultC.text,
+                                voiceSampleProvider.chosenLanguage);
                           },
                         ),
                       ],

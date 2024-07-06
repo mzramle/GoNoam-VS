@@ -67,6 +67,13 @@ android {
         versionName flutterVersionName
     }
 
+
+    packagingOptions {
+
+        pickFirst 'lib/arm64-v8a/libonnxruntime.so'
+        pickFirst 'lib/armeabi-v7a/libonnxruntime.so'
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
@@ -84,4 +91,5 @@ dependencies{
     implementation "com.android.tools:r8:8.2.42"
     implementation "com.android.support:multidex:2.0.1"
     implementation "androidx.browser:browser:1.5.0"
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release' 
 }

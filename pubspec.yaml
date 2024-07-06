@@ -66,6 +66,10 @@ dependencies:
   web: ^0.5.1
   audioplayers: ^6.0.0
   avatar_glow: ^3.0.1
+  file_picker: ^8.0.6
+  sherpa_onnx: ^1.10.2
+  ntts_dart: ^0.0.0
+  onnxruntime: ^1.4.1
 
 dependency_overrides:
   intl: ^0.18.1

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
@@ -74,7 +75,16 @@ class VoiceSynthesisMainPage extends StatelessWidget {
               Center(
                 child: OrangeButton(
                   text: 'Trained Voice Library',
-                  onPressed: () {},
+                  onPressed: () {
+                    try {
+                      Navigator.of(context)
+                          .pushNamed('/trained_voice_library_page');
+                    } catch (e) {
+                      if (kDebugMode) {
+                        print(e);
+                      }
+                    }
+                  },
                 ),
               ),
               const SizedBox(height: 20),
@@ -83,6 +93,24 @@ class VoiceSynthesisMainPage extends StatelessWidget {
                   text: 'Delete Voices',
                   onPressed: () {
                     Navigator.of(context).pushNamed('/delete_voices_page');
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: OrangeButton(
+                  text: 'Test Flask Voices',
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('/test_flask_page');
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: OrangeButton(
+                  text: 'Test Flask Voices 2',
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('/test_flask2_page');
                   },
                 ),
               ),
