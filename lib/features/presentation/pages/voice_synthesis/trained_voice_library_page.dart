@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -54,7 +55,7 @@ class _TrainedVoiceLibraryPageState extends State<TrainedVoiceLibraryPage> {
         .get()
         .then((snapshot) => snapshot.docs.length);
 
-    if (existingModelsCount >= 5) {
+    if (existingModelsCount >= 5 && mounted) {
       // If 5 or more models exist, inform the user and do not proceed
       await showDialog(
         context: context,
@@ -71,6 +72,7 @@ class _TrainedVoiceLibraryPageState extends State<TrainedVoiceLibraryPage> {
       );
       return;
     }
+    if (!mounted) return;
     await showDialog(
       context: context,
       builder: (context) {
@@ -174,7 +176,9 @@ class _TrainedVoiceLibraryPageState extends State<TrainedVoiceLibraryPage> {
     // Implement TTS functionality here
     // This is a placeholder for TTS implementation
     // You would typically use a TTS package or API that supports ONNX models
-    print("Reading Text: $text");
+    if (kDebugMode) {
+      print("Reading Text: $text");
+    }
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:gonoam_v1/features/presentation/widgets/orange_button.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();
-    if (mounted) Navigator.of(context).pushReplacementNamed('/login');
+    Get.offAllNamed('/login');
   }
 
   @override
@@ -208,7 +209,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 if (translateProvider.status == Status.loading)
-                  const CustomLoading(),
+                  const CustomLoadingTranslate(),
                 if (translateProvider.status == Status.complete)
                   Padding(
                     padding: EdgeInsets.symmetric(

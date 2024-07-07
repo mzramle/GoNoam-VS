@@ -1,15 +1,26 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
 import '../../../platform/audio_recorder_platform.dart';
 
 class Recorder extends StatefulWidget {
   final void Function(String path) onStop;
+  final String voiceSampleName;
+  final String chosenLanguage;
+  final String saveDirectoryPath;
 
-  const Recorder({super.key, required this.onStop});
+  const Recorder({
+    super.key,
+    required this.onStop,
+    required this.voiceSampleName,
+    required this.chosenLanguage,
+    required this.saveDirectoryPath,
+  });
 
   @override
   State<Recorder> createState() => _RecorderState();
@@ -41,28 +52,54 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
     super.initState();
   }
 
-  Future<void> _start() async {
+  String _generateRandomId() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    final random = Random();
+    return List.generate(
+      10,
+      (index) => chars[random.nextInt(chars.length)],
+      growable: false,
+    ).join();
+  }
+
+  DateTime _formatDate(DateTime dateFormatted) {
+    return DateTime(dateFormatted.year, dateFormatted.month, dateFormatted.day,
+        dateFormatted.hour, dateFormatted.minute);
+  }
+
+  Future<void> _start(String? voiceSampleName, String? chosenLanguage,
+      String? saveDirectoryPath) async {
     try {
+      DateTime dateFormatted = DateTime.now();
+
+      final safeVoiceSampleName = voiceSampleName?.isEmpty ?? true
+          ? _generateRandomId()
+          : voiceSampleName;
+      final safeChosenLanguage = chosenLanguage?.isEmpty ?? true
+          ? '${_formatDate(dateFormatted)}'
+          : chosenLanguage;
+
+      String fileName = "$safeVoiceSampleName-$safeChosenLanguage.wav";
+
+      String filePath = await getApplicationDocumentsDirectory()
+          .then((value) => '${value.path}/$fileName');
+
       if (await _audioRecorder.hasPermission()) {
-        const encoder = AudioEncoder.aacLc;
+        const encoder = AudioEncoder.wav;
 
         if (!await _isEncoderSupported(encoder)) {
           return;
         }
 
-        final devs = await _audioRecorder.listInputDevices();
-        debugPrint(devs.toString());
+        // final devs = await _audioRecorder.listInputDevices();
+        // debugPrint(devs.toString());
 
         const config = RecordConfig(encoder: encoder, numChannels: 1);
-
-        // Record to file
-        await recordFile(_audioRecorder, config);
+        await _audioRecorder.start(config, path: filePath);
 
         // Record to stream
         // await recordStream(_audioRecorder, config);
-
         _recordDuration = 0;
-
         _startTimer();
       }
     } catch (e) {
@@ -142,8 +179,8 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
             ),
             if (_amplitude != null) ...[
               const SizedBox(height: 40),
-              Text('Current: ${_amplitude?.current ?? 0.0}'),
-              Text('Max: ${_amplitude?.max ?? 0.0}'),
+              Text('Current Amp: ${_amplitude?.current ?? 0.0}'),
+              Text('Max Amp: ${_amplitude?.max ?? 0.0}'),
             ],
           ],
         ),
@@ -179,7 +216,10 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
         child: InkWell(
           child: SizedBox(width: 56, height: 56, child: icon),
           onTap: () {
-            (_recordState != RecordState.stop) ? _stop() : _start();
+            (_recordState != RecordState.stop)
+                ? _stop()
+                : _start(widget.voiceSampleName, widget.chosenLanguage,
+                    widget.saveDirectoryPath);
           },
         ),
       ),

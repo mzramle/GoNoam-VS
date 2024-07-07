@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +21,7 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
       Provider.of<VoiceSampleProvider>(context);
   late LanguageProvider languageProvider =
       Provider.of<LanguageProvider>(context);
+  String? saveDirectoryPath;
 
   bool showPlayer = false;
   String? audioPath;
@@ -141,6 +143,19 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
               ),
             ),
             const SizedBox(height: 20),
+            // ElevatedButton(
+            //   onPressed: () async {
+            //     String? selectedDirectory =
+            //         await FilePicker.platform.getDirectoryPath();
+            //     if (selectedDirectory != null) {
+            //       setState(() {
+            //         saveDirectoryPath = selectedDirectory;
+            //       });
+            //     }
+            //   },
+            //   child: Text('Select Save Directory: ${saveDirectoryPath ?? ''}'),
+            // ),
+            const SizedBox(height: 20),
             const Text(
               'Record Voice Sample',
               style: TextStyle(color: Color(0xFF4E0189), fontSize: 16),
@@ -176,6 +191,10 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
                           showPlayer = true;
                         });
                       },
+                      voiceSampleName: voiceSampleProvider.voiceSampleName,
+                      chosenLanguage: languageProvider.chosenLanguage,
+                      saveDirectoryPath: saveDirectoryPath ??
+                          voiceSampleProvider.directoryPath,
                     ),
             ),
           ],

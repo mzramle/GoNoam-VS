@@ -19,6 +19,7 @@ class VoiceSampleProvider extends ChangeNotifier {
       ''); // Assuming _recordedFile is the private variable holding the recorded file.
   File get recordedFile => _recordedFile;
   bool get hasRecordedSample => recordedFile.existsSync();
+  String directoryPath = '/storage/emulated/0/Download/voice_samples/';
 
   void setChosenLanguage(String language) {
     chosenLanguage = language;
@@ -73,7 +74,7 @@ class VoiceSampleProvider extends ChangeNotifier {
         'chosenLanguage': chosenLanguage,
         'audioPath': audioPath,
         'userId': user.uid,
-        'timeCreated': FieldValue.serverTimestamp(), // Add time created
+        'timeCreated': FieldValue.serverTimestamp(),
       };
       await FirebaseFirestore.instance
           .collection('voice_samples')

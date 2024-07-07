@@ -91,6 +91,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../widgets/forgot_password_keyp.dart';
 import '../../widgets/form_container_widget.dart';
 import '../../../../helper/toast.dart';
 
@@ -143,6 +144,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const ForgotPasswordKeyp(),
             const Text(
                 'Enter your email and we will send you a password reset link.',
                 textAlign: TextAlign.center,
@@ -163,8 +165,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 style: ButtonStyle(
                     foregroundColor:
                         WidgetStateProperty.all<Color>(Colors.white),
-                    backgroundColor:
-                        WidgetStateProperty.all<Color>(Colors.red),
+                    backgroundColor: WidgetStateProperty.all<Color>(Colors.red),
                     shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18.0),
