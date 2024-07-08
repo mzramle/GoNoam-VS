@@ -141,8 +141,9 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title:
-            const Text('Adjust Voice', style: TextStyle(color: Colors.white)),
+        title: Text('Adjust Voice',
+            style:
+                GoogleFonts.robotoCondensed(fontSize: 30, color: Colors.white)),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
 import 'package:gonoam_v1/helper/toast.dart';
+import 'package:google_fonts/google_fonts.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
@@ -166,13 +167,13 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Access VoiceSampleProvider from the context
     final voiceSampleProvider = Provider.of<VoiceSampleProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title:
-            const Text('Delete Voices', style: TextStyle(color: Colors.white)),
+        title: Text('Delete Voices',
+            style:
+                GoogleFonts.robotoCondensed(fontSize: 30, color: Colors.white)),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),

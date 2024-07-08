@@ -100,7 +100,7 @@ class MyApp extends StatelessWidget {
             page: () => const CreateVoiceSamplePage()),
         GetPage(
             name: '/adjust_voice_profile_page',
-            page: () => AdjustVoiceProfilePage()),
+            page: () => const AdjustVoiceProfilePage()),
         GetPage(
             name: '/trained_voice_library_work_page',
             page: () => const TrainedVoiceLibraryWork()),
@@ -120,10 +120,12 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PersistentTabView(
-      backgroundColor: Color.fromARGB(255, 16, 66, 136),
       controller: _controller,
       tabs: buildScreens(),
-      navBarBuilder: (navBarConfig) => Style13BottomNavBar(
+      navBarBuilder: (navBarConfig) => Style2BottomNavBar(
+        navBarDecoration: NavBarDecoration(
+          borderRadius: BorderRadius.circular(4),
+        ),
         navBarConfig: navBarConfig,
       ),
     );

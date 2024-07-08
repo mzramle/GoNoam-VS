@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../provider/language_provider.dart';
 import '../../../../provider/voice_sample_provider.dart';
@@ -57,8 +58,9 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Voice Sample',
-            style: TextStyle(color: Colors.white)),
+        title: Text('Create Voice Sample',
+            style:
+                GoogleFonts.robotoCondensed(fontSize: 30, color: Colors.white)),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),

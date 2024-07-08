@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../model/translation_model.dart';
 import '../../widgets/translation_box.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -118,8 +119,9 @@ class _FavoriteTranslationPageState extends State<FavoriteTranslationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Favorite Translations',
-            style: TextStyle(color: Colors.white)),
+        title: Text('Favorite Translations',
+            style:
+                GoogleFonts.robotoCondensed(fontSize: 29, color: Colors.white)),
         backgroundColor: Colors.blue,
         actions: [
           TextButton.icon(

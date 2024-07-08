@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../provider/voice_profile_provider.dart';
@@ -31,8 +32,9 @@ class _VoiceSynthesisMainPageState extends State<VoiceSynthesisMainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Voice Synthesis',
-            style: TextStyle(color: Colors.white)),
+        title: Text('Voice Synthesis',
+            style:
+                GoogleFonts.robotoCondensed(fontSize: 30, color: Colors.white)),
         backgroundColor: Colors.blue,
         automaticallyImplyLeading: false,
         actions: [
@@ -42,9 +44,10 @@ class _VoiceSynthesisMainPageState extends State<VoiceSynthesisMainPage> {
                 Get.toNamed('/user_profile');
               } else if (result == 'logout') {
                 _signOut();
-              } else if (result == 'settings') {
-                Get.toNamed('/settings');
               }
+              // else if (result == 'settings') {
+              //   Get.toNamed('/settings');
+              // }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
@@ -55,12 +58,13 @@ class _VoiceSynthesisMainPageState extends State<VoiceSynthesisMainPage> {
                 value: 'logout',
                 child: Text('Log Out'),
               ),
-              const PopupMenuItem<String>(
-                value: 'settings',
-                child: Text('Settings'),
-              ),
+              // const PopupMenuItem<String>(
+              //   value: 'settings',
+              //   child: Text('Settings'),
+              // ),
             ],
-            icon: const Icon(Icons.person, color: Colors.white),
+            icon: const Icon(Icons.settings_applications_rounded,
+                color: Colors.white, size: 40),
           ),
         ],
       ),

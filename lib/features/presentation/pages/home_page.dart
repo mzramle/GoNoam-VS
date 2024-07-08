@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:gonoam_v1/features/presentation/widgets/orange_button.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import '../../../provider/language_provider.dart';
@@ -54,9 +55,9 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'GoNoam Translation',
-          style: TextStyle(color: Colors.white),
+          style: GoogleFonts.robotoCondensed(fontSize: 30, color: Colors.white),
         ),
         backgroundColor: Colors.blue,
         automaticallyImplyLeading: false,
@@ -67,11 +68,13 @@ class _HomePageState extends State<HomePage> {
                 Navigator.of(context).pushNamed('/user_profile');
               } else if (result == 'logout') {
                 _signOut();
-              } else if (result == 'settings') {
-                Navigator.of(context).pushNamed('/settings');
-              } else if (result == 'stt_test') {
-                Navigator.of(context).pushNamed('/stt_test');
               }
+              // else if (result == 'settings') {
+              //   Navigator.of(context).pushNamed('/settings');
+              // }
+              // } else if (result == 'stt_test') {
+              //   Navigator.of(context).pushNamed('/stt_test');
+              // }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
@@ -82,16 +85,17 @@ class _HomePageState extends State<HomePage> {
                 value: 'logout',
                 child: Text('Log Out'),
               ),
-              const PopupMenuItem<String>(
-                value: 'settings',
-                child: Text('Setting'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'stt_test',
-                child: Text('STT_Widget'),
-              ),
+              // const PopupMenuItem<String>(
+              //   value: 'settings',
+              //   child: Text('Setting'),
+              // ),
+              // const PopupMenuItem<String>(
+              //   value: 'stt_test',
+              //   child: Text('STT_Widget'),
+              // ),
             ],
-            icon: const Icon(Icons.person, color: Colors.white),
+            icon: const Icon(Icons.settings_applications_rounded,
+                color: Colors.white, size: 40),
           ),
         ],
       ),

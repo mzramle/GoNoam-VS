@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gonoam_v1/features/presentation/widgets/orange_button.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../provider/trained_voice_library_work_provider.dart';
 
@@ -12,7 +13,9 @@ class TrainedVoiceLibraryWork extends StatelessWidget {
       create: (_) => TrainedVoiceProvider(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Manage Trained Voice Library'),
+          title: Text('Manage Trained Voice Library',
+              style: GoogleFonts.robotoCondensed(
+                  fontSize: 25, color: Colors.white)),
           backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
         ),

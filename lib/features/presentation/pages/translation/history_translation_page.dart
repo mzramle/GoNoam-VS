@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../provider/history_translation_provider.dart';
 import '../../widgets/translation_box.dart';
 import 'package:provider/provider.dart';
@@ -27,8 +28,9 @@ class _HistoryTranslationPageState extends State<HistoryTranslationPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Translation History',
-            style: TextStyle(color: Colors.white)),
+        title: Text('Translation History',
+            style:
+                GoogleFonts.robotoCondensed(fontSize: 30, color: Colors.white)),
         backgroundColor: Colors.blue,
         actions: [
           TextButton.icon(

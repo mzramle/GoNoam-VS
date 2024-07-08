@@ -13,20 +13,25 @@ List<PersistentTabConfig> buildScreens() {
       item: ItemConfig(
         icon: const Icon(Icons.home),
         title: "Home",
+        activeForegroundColor: Colors.lightBlue,
+        activeColorSecondary: Colors.amber,
       ),
     ),
     PersistentTabConfig(
       screen: const HistoryTranslationPage(),
       item: ItemConfig(
-        icon: const Icon(Icons.history),
-        title: "History Translation",
-      ),
+          icon: const Icon(Icons.history),
+          title: "History Translation",
+          activeForegroundColor: Colors.teal,
+          activeColorSecondary: Colors.lime[200]),
     ),
     PersistentTabConfig(
       screen: const FavoriteTranslationPage(),
       item: ItemConfig(
         icon: const Icon(Icons.favorite),
         title: "Favorite Translation",
+        activeForegroundColor: Colors.red,
+        activeColorSecondary: Colors.yellowAccent,
       ),
     ),
     PersistentTabConfig(
@@ -34,6 +39,8 @@ List<PersistentTabConfig> buildScreens() {
       item: ItemConfig(
         icon: const Icon(Icons.record_voice_over),
         title: "Voice",
+        activeForegroundColor: Color.fromARGB(255, 249, 207, 102),
+        activeColorSecondary: Colors.blueGrey[600],
       ),
     ),
   ];

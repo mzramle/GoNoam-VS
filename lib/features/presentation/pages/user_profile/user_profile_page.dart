@@ -152,6 +152,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gonoam_v1/features/presentation/widgets/form_container_widget.dart';
 import 'package:gonoam_v1/helper/toast.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -254,8 +255,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            const Text('User Profile', style: TextStyle(color: Colors.white)),
+        title: Text('User Profile',
+            style:
+                GoogleFonts.robotoCondensed(fontSize: 30, color: Colors.white)),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         actions: [

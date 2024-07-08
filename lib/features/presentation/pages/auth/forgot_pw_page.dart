@@ -91,6 +91,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/forgot_password_keyp.dart';
 import '../../widgets/form_container_widget.dart';
 import '../../../../helper/toast.dart';
@@ -135,7 +136,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Forgot Password'),
+        title: Text(
+          'Forgot Password',
+          style: GoogleFonts.robotoCondensed(fontSize: 30, color: Colors.white),
+        ),
+        foregroundColor: Colors.white,
         backgroundColor: Colors.orangeAccent,
         elevation: 0,
       ),
@@ -144,9 +149,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const ForgotPasswordKeyp(),
+            const SizedBox(
+              height: 300,
+              width: 300,
+              child: ForgotPasswordKeyp(),
+            ),
+            const SizedBox(
+              height: 15,
+            ),
             const Text(
-                'Enter your email and we will send you a password reset link.',
+                'Enter your email and we will send you a password reset link',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
