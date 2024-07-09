@@ -39,7 +39,7 @@ List<PersistentTabConfig> buildScreens() {
       item: ItemConfig(
         icon: const Icon(Icons.record_voice_over),
         title: "Voice",
-        activeForegroundColor: Color.fromARGB(255, 249, 207, 102),
+        activeForegroundColor: const Color.fromARGB(255, 249, 207, 102),
         activeColorSecondary: Colors.blueGrey[600],
       ),
     ),

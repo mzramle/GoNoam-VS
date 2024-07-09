@@ -157,7 +157,7 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
 
   Future<void> _deleteVoiceModel(String docId) async {
     await FirebaseFirestore.instance
-        .collection('voice_models')
+        .collection('voice_model_setting')
         .doc(docId)
         .delete();
     setState(() {

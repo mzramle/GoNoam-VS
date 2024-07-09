@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
@@ -13,6 +14,8 @@ import '../model/voice_profile_model.dart';
 
 class VoiceProfileProvider extends ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  late FlutterTts flutterTts = FlutterTts();
+
   List<VoiceProfile> _voiceProfiles = [];
   String? _selectedProfileName;
 
@@ -58,7 +61,7 @@ class VoiceProfileProvider extends ChangeNotifier {
     "hybrid[rmvpe+fcpe]",
   ];
 
-  String _selectedF0Method = "rmvpe";
+  String _selectedF0Method = "rmvpe"; // group value for f0method
   String get selectedF0Method => _selectedF0Method;
   bool _splitAudio = false;
   bool get splitAudio => _splitAudio;
@@ -87,6 +90,13 @@ class VoiceProfileProvider extends ChangeNotifier {
   String get modelName => _modelName;
   String _modelLanguage = '';
   String get modelLanguage => _modelLanguage;
+
+  bool _allowTTSExecution = true;
+  bool get allowTTSExecution => _allowTTSExecution;
+
+  void setAllowTTSExecution(bool allow) {
+    _allowTTSExecution = allow;
+  }
 
   set selectedModel(String value) {
     _selectedModel = value;
@@ -226,9 +236,15 @@ class VoiceProfileProvider extends ChangeNotifier {
   final AudioPlayer audioPlayer = AudioPlayer();
 
   VoiceProfileProvider() {
-    fetchModels();
-    fetchIndexes();
-    fetchVoices();
+    initialize();
+  }
+
+  Future<void> initialize() async {
+    await Future.wait([
+      fetchModels(),
+      fetchIndexes(),
+      fetchVoices(),
+    ]);
   }
 
   Future<void> fetchModels() async {
@@ -264,6 +280,188 @@ class VoiceProfileProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> fetchVoiceProfiles() async {
+    final QuerySnapshot snapshot =
+        await _db.collection('voice_model_setting').get();
+    _voiceProfiles =
+        snapshot.docs.map((doc) => VoiceProfile.fromFirestore(doc)).toList();
+    notifyListeners();
+  }
+
+  Future<void> selectProfileAsCurrent(VoiceProfile profile) async {
+    try {
+      final QuerySnapshot currentProfileSnapshot = await _db
+          .collection('voice_model_setting')
+          .where('currentVoiceProfile', isEqualTo: 1)
+          .get();
+
+      if (currentProfileSnapshot.docs.isNotEmpty) {
+        for (var doc in currentProfileSnapshot.docs) {
+          await _db
+              .collection('voice_model_setting')
+              .doc(doc.id)
+              .update({'currentVoiceProfile': 0});
+        }
+      }
+
+      await _db
+          .collection('voice_model_setting')
+          .doc(profile.id)
+          .update({'currentVoiceProfile': 1});
+
+      notifyListeners();
+      showSuccessToast('Current voice profile set to ${profile.modelName}');
+    } catch (e) {
+      showErrorToast("Error setting current voice profile: $e");
+    }
+  }
+
+  Future<void> updateTrainedVoiceModelSetting() async {
+    try {
+      final QuerySnapshot currentProfileSnapshot = await _db
+          .collection('voice_model_setting')
+          .where('currentVoiceProfile', isEqualTo: 1)
+          .get();
+
+      if (currentProfileSnapshot.docs.isEmpty) {
+        showErrorToast('No current voice profile found.');
+        return;
+      }
+      final DocumentSnapshot currentProfileDoc =
+          currentProfileSnapshot.docs.first;
+
+      var dataMap = {
+        'model_name': '$modelName-$selectedVoice',
+        'model_language': modelLanguage,
+        'tts_voice': selectedVoice,
+        'tts_rate': ttsRate,
+        'pitch': pitch,
+        'filter_radius': filterRadius,
+        'index_rate': indexRate,
+        'rms_mix_rate': rmsMixRate,
+        'protect': protect,
+        'hop_length': hopLength,
+        'f0method': selectedF0Method,
+        'output_tts_path': outputTTSPath,
+        'output_rvc_path': outputRVCPath,
+        'model_file': selectedModel,
+        'index_file': selectedIndex,
+        'split_audio': splitAudio,
+        'autotune': autotune,
+        'clean_audio': cleanAudio,
+        'clean_strength': cleanStrength,
+        'export_format': exportFormat,
+        'embedder_model': embedderModel,
+        'embedder_model_custom': embedderModelCustom,
+        'upscale_audio': upscaleAudio,
+      };
+
+      await _db
+          .collection('voice_model_setting')
+          .doc(currentProfileDoc.id)
+          .set(dataMap);
+
+      showSuccessToast('Voice model setting updated successfully!');
+    } catch (e) {
+      showErrorToast('Failed to update voice model setting: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchCurrentVoiceModelData() async {
+    try {
+      final QuerySnapshot snapshot = await _db
+          .collection('voice_model_setting')
+          .where('currentVoiceProfile', isEqualTo: 1)
+          .limit(1)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        // Return all fields of the document
+        return snapshot.docs.first.data() as Map<String, dynamic>;
+      }
+      // Return an empty map or a default map as needed
+      return {'defaultField': 'Default Model'};
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      // Return an error map or handle this case as needed
+      return {'error': 'Error fetching document'};
+    }
+  }
+
+  Stream<Map<String, dynamic>> fetchVoiceModelDataStream() {
+    try {
+      return _db
+          .collection('voice_model_setting')
+          .where('currentVoiceProfile', isEqualTo: 1)
+          .snapshots()
+          .map((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          if (kDebugMode) {
+            print("Document fetched: ${snapshot.docs.first.data()}");
+          }
+          return snapshot.docs.first.data();
+        } else {
+          if (kDebugMode) {
+            print("No documents found matching criteria.");
+          }
+          return {};
+        }
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error fetching data: $e");
+      }
+      return Stream.value({'error': 'Error fetching document'});
+    }
+  }
+
+  Future<void> _decideAndExecuteTTS(String text, String languageCode) async {
+    try {
+      fetchCurrentVoiceModelData().then((modelData) async {
+        if (allowTTSExecution == true && modelData.isNotEmpty) {
+          generateCurrentTTS(
+            textInput: text,
+            modelData: modelData,
+          );
+        } else {
+          showWarningToast('No Current Voice Profile is present.');
+          showWarningToast('Defaulting to Flutter TTS instead...');
+          _speakText(text, languageCode);
+        }
+      });
+
+      //       if (allowTTSExecution == true && modelData.isNotEmpty) {
+      //   generateCurrentTTS(
+      //     textInput: text,
+      //     modelData: modelData,
+      //   );
+      // } else {
+      //   showWarningToast('No Current Voice Profile is present.');
+      //   showWarningToast('Defaulting to Flutter TTS instead...');
+      //   _speakText(text, languageCode);
+      // }
+    } catch (e) {
+      showErrorToast('Cannot Generate TTS');
+      showErrorToast('Error: $e');
+    }
+  }
+
+  Future<void> executeTTS(String text, String languageCode) async {
+    await _decideAndExecuteTTS(text, languageCode);
+  }
+
+  Future<void> _speakText(String text, String languageCode) async {
+    //voiceSampleProvider.setChosenLanguage(languageCode);
+    if (kDebugMode) {
+      print("$text $languageCode");
+    }
+    await flutterTts.setLanguage(languageCode);
+    await flutterTts.setPitch(1);
+    await flutterTts.speak(text);
+    await flutterTts.awaitSpeakCompletion(true);
+  }
+
   Future<void> generateTTS() async {
     if (selectedModel == null) {
       showErrorToast('Please select a model');
@@ -272,7 +470,7 @@ class VoiceProfileProvider extends ChangeNotifier {
     } else if (selectedVoice == null) {
       showErrorToast('Please select a voice');
     } else if (textInput.isEmpty || textInput == '') {
-      showErrorToast('Text to synthesize cannot be empty');
+      showErrorToast('Please enter texts to synthesize speech');
     } else {
       try {
         final response = await http.post(
@@ -334,155 +532,22 @@ class VoiceProfileProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchVoiceProfiles() async {
-    final QuerySnapshot snapshot =
-        await _db.collection('voice_model_setting').get();
-    _voiceProfiles =
-        snapshot.docs.map((doc) => VoiceProfile.fromFirestore(doc)).toList();
-    notifyListeners();
-  }
-
-  Future<void> selectProfileAsCurrent(VoiceProfile profile) async {
-    try {
-      // Step 1: Fetch current voice profile
-      final QuerySnapshot currentProfileSnapshot = await _db
-          .collection('voice_model_setting')
-          .where('currentVoiceProfile', isEqualTo: 1)
-          .get();
-
-      // Step 2: Update previous profile if exists
-      if (currentProfileSnapshot.docs.isNotEmpty) {
-        for (var doc in currentProfileSnapshot.docs) {
-          await _db
-              .collection('voice_model_setting')
-              .doc(doc.id)
-              .update({'currentVoiceProfile': 0});
-        }
-      }
-
-      // Step 3: Set new current profile
-      await _db
-          .collection('voice_model_setting')
-          .doc(profile.id)
-          .update({'currentVoiceProfile': 1});
-
-      // Notify listeners about the change
-      notifyListeners();
-      showSuccessToast('Current voice profile set to ${profile.modelName}');
-    } catch (e) {
-      // Handle errors gracefully
-      showErrorToast("Error setting current voice profile: $e");
-    }
-  }
-
-  Future<void> updateTrainedVoiceModelSetting() async {
-    try {
-      // Step 1: Fetch the current voice profile
-      final QuerySnapshot currentProfileSnapshot = await _db
-          .collection('voice_model_setting')
-          .where('currentVoiceProfile', isEqualTo: 1)
-          .get();
-
-      if (currentProfileSnapshot.docs.isEmpty) {
-        showErrorToast('No current voice profile found.');
-        return;
-      }
-
-      // Assuming there's only one current voice profile at any time
-      final DocumentSnapshot currentProfileDoc =
-          currentProfileSnapshot.docs.first;
-
-      // Step 2: Prepare the data map with updated settings
-      var dataMap = {
-        'model_name': '$modelName-$selectedVoice',
-        'model_language': modelLanguage,
-        'tts_voice': selectedVoice,
-        'tts_rate': ttsRate,
-        'pitch': pitch,
-        'filter_radius': filterRadius,
-        'index_rate': indexRate,
-        'rms_mix_rate': rmsMixRate,
-        'protect': protect,
-        'hop_length': hopLength,
-        'f0method': selectedF0Method,
-        'output_tts_path': outputTTSPath,
-        'output_rvc_path': outputRVCPath,
-        'model_file': selectedModel,
-        'index_file': selectedIndex,
-        'split_audio': splitAudio,
-        'autotune': autotune,
-        'clean_audio': cleanAudio,
-        'clean_strength': cleanStrength,
-        'export_format': exportFormat,
-        'embedder_model': embedderModel,
-        'embedder_model_custom': embedderModelCustom,
-        'upscale_audio': upscaleAudio,
-      };
-
-      // Step 3: Update the current voice profile with new settings
-      await _db
-          .collection('voice_model_setting')
-          .doc(currentProfileDoc.id)
-          .update(dataMap);
-
-      showSuccessToast('Voice model setting updated successfully!');
-    } catch (e) {
-      showErrorToast('Failed to update voice model setting: $e');
-    }
-  }
-
-  Future<Map<String, dynamic>> fetchCurrentVoiceModelData() async {
-    try {
-      final QuerySnapshot snapshot = await _db
-          .collection('voice_model_setting')
-          .where('currentVoiceProfile', isEqualTo: 1)
-          .limit(1)
-          .get();
-      if (snapshot.docs.isNotEmpty) {
-        // Return all fields of the document
-        return snapshot.docs.first.data() as Map<String, dynamic>;
-      }
-      // Return an empty map or a default map as needed
-      return {'defaultField': 'Default Model'};
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      // Return an error map or handle this case as needed
-      return {'error': 'Error fetching document'};
-    }
-  }
-
-  Stream<Map<String, dynamic>> fetchVoiceModelDataStream() {
-    try {
-      return _db
-          .collection('voice_model_setting')
-          .where('currentVoiceProfile', isEqualTo: 1)
-          .snapshots()
-          .map((snapshot) {
-        if (snapshot.docs.isNotEmpty) {
-          if (kDebugMode) {
-            print("Document fetched: ${snapshot.docs.first.data()}");
-          }
-          return snapshot.docs.first.data();
-        } else {
-          if (kDebugMode) {
-            print("No documents found matching criteria.");
-          }
-          return {};
-        }
-      });
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error fetching data: $e");
-      }
-      return Stream.value({'error': 'Error fetching document'});
-    }
-  }
-
   Future<void> generateCurrentTTS(
       {required String textInput,
       required Map<String, dynamic> modelData}) async {
+    if (textInput == '') {
+      showErrorToast('Please enter text to synthesize speech');
+      return;
+    } else if (modelData['model_name'] == null) {
+      showErrorToast(
+          'No voice model selected. Please select a current voice profile in Adjust Voice Page.');
+      return;
+    } else if (modelData['model_language'] == null) {
+      showErrorToast(
+          'No language selected. Please select a current voice profile in Adjust Voice Page.');
+      return;
+    }
+
     showNormalToast('Generating TTS...');
     // Set the necessary fields based on modelData
     selectedModel = modelData['model_file'];
@@ -510,7 +575,8 @@ class VoiceProfileProvider extends ChangeNotifier {
     try {
       await generateTTS();
     } catch (e) {
-      showErrorToast('Error in generating speech. Details caught: $e');
+      showErrorToast('Error in generating speech.');
+      showErrorToast('Error: $e');
     }
   }
 

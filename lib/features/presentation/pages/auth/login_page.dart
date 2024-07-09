@@ -7,6 +7,7 @@ import 'package:gonoam_v1/helper/toast.dart';
 import 'package:gonoam_v1/main.dart';
 
 import '../../../user_auth/firebase_auth_implementation/firebase_auth_services.dart';
+import '../../widgets/custom_splash_global_translate_icon.dart';
 import 'forgot_pw_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -43,10 +44,11 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(
-                      'assets/images/GoNoam_logo_L_cropped.png',
-                      fit: BoxFit.cover,
-                    ),
+                    // Image.asset(
+                    //   'assets/images/GoNoam_logo_L_cropped.png',
+                    //   fit: BoxFit.cover,
+                    // ),
+                    const CustomSplashGlobalTranslate(),
                     const SizedBox(height: 20),
                     Text("Welcome!",
                         style: GoogleFonts.bebasNeue(fontSize: 45)),

@@ -12,12 +12,12 @@ class TrainedVoiceProvider extends ChangeNotifier {
   List<String> models = [];
   List<String> indexes = [];
   List<TrainedVoiceModel> voices = [];
-  String? _selectedModel;
-  String? get selectedModel => _selectedModel;
-  String? _selectedIndex;
-  String? get selectedIndex => _selectedIndex;
-  String? _selectedVoice;
-  String? get selectedVoice => _selectedVoice;
+  late String _selectedModel = '';
+  String get selectedModel => _selectedModel;
+  late String _selectedIndex = '';
+  String get selectedIndex => _selectedIndex;
+  late String _selectedVoice = '';
+  String get selectedVoice => _selectedVoice;
 
   String _textInput = '';
   String get textInput => _textInput;
@@ -56,10 +56,6 @@ class TrainedVoiceProvider extends ChangeNotifier {
   bool get autotune => _autotune;
   bool _cleanAudio = true;
   bool get cleanAudio => _cleanAudio;
-  set cleanAudio(bool value) {
-    _cleanAudio = value;
-    notifyListeners();
-  }
 
   double _cleanStrength = 0.5;
   double get cleanStrength => _cleanStrength;
@@ -82,17 +78,17 @@ class TrainedVoiceProvider extends ChangeNotifier {
   String _modelLanguage = '';
   String get modelLanguage => _modelLanguage;
 
-  set selectedModel(String? value) {
+  set selectedModel(String value) {
     _selectedModel = value;
     notifyListeners();
   }
 
-  set selectedIndex(String? value) {
+  set selectedIndex(String value) {
     _selectedIndex = value;
     notifyListeners();
   }
 
-  set selectedVoice(String? value) {
+  set selectedVoice(String value) {
     _selectedVoice = value;
     notifyListeners();
   }
@@ -177,6 +173,11 @@ class TrainedVoiceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  set cleanAudio(bool value) {
+    _cleanAudio = value;
+    notifyListeners();
+  }
+
   set exportFormat(String value) {
     _exportFormat = value;
     notifyListeners();
@@ -210,10 +211,22 @@ class TrainedVoiceProvider extends ChangeNotifier {
   final AudioPlayer audioPlayer = AudioPlayer();
 
   TrainedVoiceProvider() {
-    fetchModels();
-    fetchIndexes();
-    fetchVoices();
+    initialize();
   }
+
+  Future<void> initialize() async {
+    await Future.wait([
+      fetchModels(),
+      fetchIndexes(),
+      fetchVoices(),
+    ]);
+  }
+
+  // TrainedVoiceProvider() {
+  //   fetchModels();
+  //   fetchIndexes();
+  //   fetchVoices();
+  // }
 
   Future<void> fetchModels() async {
     final response =

@@ -3,9 +3,77 @@ import 'package:gonoam_v1/features/presentation/widgets/orange_button.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../provider/trained_voice_library_work_provider.dart';
+import '../../widgets/custom_slider_widget.dart';
+import '../../widgets/custom_slider_zero_to_one_widget.dart';
+import '../../widgets/searchable_dropdown.dart';
 
-class TrainedVoiceLibraryWork extends StatelessWidget {
+class TrainedVoiceLibraryWork extends StatefulWidget {
   const TrainedVoiceLibraryWork({super.key});
+
+  @override
+  State<TrainedVoiceLibraryWork> createState() =>
+      _TrainedVoiceLibraryWorkState();
+}
+
+class _TrainedVoiceLibraryWorkState extends State<TrainedVoiceLibraryWork> {
+  late TrainedVoiceProvider trainedVoiceProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    setup();
+    context.read<TrainedVoiceProvider>().initialize();
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {});
+  }
+
+  Future<void> setup() async {
+    await fetchInitialFirstWorkData();
+  }
+
+  Future<void> fetchInitialFirstWorkData() async {
+    setState(() {
+      trainedVoiceProvider.models = [];
+      trainedVoiceProvider.indexes = [];
+      trainedVoiceProvider.voices = [];
+      trainedVoiceProvider.selectedModel = '';
+      trainedVoiceProvider.selectedIndex = '';
+      trainedVoiceProvider.selectedVoice = '';
+      trainedVoiceProvider.textInput = '';
+      trainedVoiceProvider.outputFile = '';
+      trainedVoiceProvider.ttsRate = 0;
+      trainedVoiceProvider.pitch = 0;
+      trainedVoiceProvider.filterRadius = 3;
+      trainedVoiceProvider.indexRate = 0.75;
+      trainedVoiceProvider.rmsMixRate = 1;
+      trainedVoiceProvider.protect = 0.5;
+      trainedVoiceProvider.hopLength = 128;
+      trainedVoiceProvider.f0method = [
+        "pm",
+        "harvest",
+        "dio",
+        "crepe",
+        "crepe-tiny",
+        "rmvpe",
+        "fcpe",
+        "hybrid[rmvpe+fcpe]",
+      ];
+      trainedVoiceProvider.selectedF0Method = "rmvpe";
+      trainedVoiceProvider.splitAudio = false;
+      trainedVoiceProvider.autotune = false;
+      trainedVoiceProvider.cleanAudio = true;
+      trainedVoiceProvider.cleanStrength = 0.5;
+      trainedVoiceProvider.upscaleAudio = false;
+      trainedVoiceProvider.outputTTSPath = '';
+      trainedVoiceProvider.outputRVCPath = '';
+      trainedVoiceProvider.exportFormat = "WAV";
+      trainedVoiceProvider.embedderModel = "contentvec";
+      trainedVoiceProvider.embedderModelCustom = null;
+      trainedVoiceProvider.searchQuery = '';
+      trainedVoiceProvider.modelName = '';
+      trainedVoiceProvider.modelLanguage = '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,89 +93,52 @@ class TrainedVoiceLibraryWork extends StatelessWidget {
             builder: (context, trainedVoiceProvider, child) {
               return ListView(
                 children: [
-                  DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      labelText: 'Select Model',
-                    ),
-                    value: trainedVoiceProvider.selectedModel,
-                    items: trainedVoiceProvider.models.map((String model) {
-                      return DropdownMenuItem<String>(
-                        value: model,
-                        child: SizedBox(
-                          width: 300, // Set a fixed width for the container
-                          child: Text(
-                            model,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                  CustomSearchableDropdown(
+                    labelText: 'Select Model',
+                    selectedValue: trainedVoiceProvider.selectedModel,
+                    items: trainedVoiceProvider.models.isNotEmpty
+                        ? trainedVoiceProvider.models
+                        : [''],
+                    getName: (models) => models,
                     onChanged: (String? newValue) {
-                      trainedVoiceProvider.selectedModel = newValue;
+                      if (newValue != null) {
+                        trainedVoiceProvider.selectedModel = newValue;
+                      }
                     },
                   ),
                   const SizedBox(height: 10),
-                  DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      labelText: 'Select Index',
-                    ),
-                    value: trainedVoiceProvider.selectedIndex,
-                    items: trainedVoiceProvider.indexes.map((String index) {
-                      return DropdownMenuItem<String>(
-                        value: index,
-                        child: SizedBox(
-                          width: 300, // Set a fixed width for the container
-                          child: Text(
-                            index,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                  CustomSearchableDropdown(
+                    labelText: 'Select Index',
+                    selectedValue: trainedVoiceProvider.selectedIndex,
+                    items: trainedVoiceProvider.indexes.isNotEmpty
+                        ? trainedVoiceProvider.indexes
+                        : [''],
+                    getName: (indexes) => indexes,
                     onChanged: (String? newValue) {
-                      trainedVoiceProvider.selectedIndex = newValue;
+                      if (newValue != null) {
+                        trainedVoiceProvider.selectedIndex = newValue;
+                      }
                     },
                   ),
                   const SizedBox(height: 10),
-                  DropdownButtonFormField<String>(
-                    menuMaxHeight: 300,
-                    decoration: const InputDecoration(
-                      labelText: 'Select Voice',
-                    ),
-                    value: trainedVoiceProvider.selectedVoice,
-                    items: trainedVoiceProvider.voices.map((voice) {
-                      return DropdownMenuItem<String>(
-                        value: voice.shortName,
-                        child: SizedBox(
-                          width: 300,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  voice.shortName,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                "(${voice.gender})",
-                                style: const TextStyle(
-                                  fontStyle: FontStyle.italic,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                  CustomSearchableDropdown(
+                    labelText: 'Select Voice',
+                    selectedValue: trainedVoiceProvider.selectedVoice,
+                    items: trainedVoiceProvider.voices.isNotEmpty
+                        ? trainedVoiceProvider.voices
+                            .map((voices) => voices.shortName)
+                            .toList()
+                        : [''],
+                    getName: (voices) => voices,
                     onChanged: (String? newValue) {
-                      trainedVoiceProvider.selectedVoice = newValue;
+                      if (newValue != null) {
+                        trainedVoiceProvider.selectedVoice = newValue;
+                      }
                     },
                   ),
                   const SizedBox(height: 20),
                   Text('TTS Rate: ${trainedVoiceProvider.ttsRate}'),
-                  Slider(
+                  CustomSliderWidget(
                     label: "TTS Rate",
                     value: trainedVoiceProvider.ttsRate.toDouble(),
                     min: 0,
@@ -118,7 +149,7 @@ class TrainedVoiceLibraryWork extends StatelessWidget {
                     },
                   ),
                   Text('Pitch: ${trainedVoiceProvider.pitch}'),
-                  Slider(
+                  CustomSliderWidget(
                     label: "Pitch",
                     value: trainedVoiceProvider.pitch,
                     min: -100,
@@ -128,7 +159,7 @@ class TrainedVoiceLibraryWork extends StatelessWidget {
                     },
                   ),
                   Text('Filter Radius: ${trainedVoiceProvider.filterRadius}'),
-                  Slider(
+                  CustomSliderWidget(
                     label: "Filter Radius",
                     value: trainedVoiceProvider.filterRadius,
                     min: 1,
@@ -138,37 +169,43 @@ class TrainedVoiceLibraryWork extends StatelessWidget {
                     },
                   ),
                   Text('Index Rate: ${trainedVoiceProvider.indexRate}'),
-                  Slider(
+                  CustomSliderZeroToOneWidget(
                     label: "Index Rate",
                     value: trainedVoiceProvider.indexRate,
                     min: 0,
                     max: 1,
+                    divisions: 0.5,
+                    increment: 0.05,
                     onChanged: (newValue) {
                       trainedVoiceProvider.indexRate = newValue;
                     },
                   ),
                   Text('RMS Mix Rate: ${trainedVoiceProvider.rmsMixRate}'),
-                  Slider(
+                  CustomSliderZeroToOneWidget(
                     label: "RMS Mix Rate",
                     value: trainedVoiceProvider.rmsMixRate,
                     min: 0,
                     max: 1,
+                    divisions: 1,
+                    increment: 0.05,
                     onChanged: (newValue) {
                       trainedVoiceProvider.rmsMixRate = newValue;
                     },
                   ),
                   Text('Protect: ${trainedVoiceProvider.protect}'),
-                  Slider(
+                  CustomSliderZeroToOneWidget(
                     label: "Protect",
                     value: trainedVoiceProvider.protect,
                     min: 0,
                     max: 1,
+                    divisions: 0.5,
+                    increment: 0.05,
                     onChanged: (newValue) {
                       trainedVoiceProvider.protect = newValue;
                     },
                   ),
                   Text('Hop Length: ${trainedVoiceProvider.hopLength}'),
-                  Slider(
+                  CustomSliderWidget(
                     label: "Hop Length",
                     value: trainedVoiceProvider.hopLength,
                     min: 64,
@@ -180,7 +217,14 @@ class TrainedVoiceLibraryWork extends StatelessWidget {
                   const Text('F0 Method:'),
                   ...trainedVoiceProvider.f0method
                       .map((method) => RadioListTile<String>(
-                            title: Text(method),
+                            activeColor: Colors.deepOrange,
+                            title: Text(
+                              method,
+                              style: GoogleFonts.robotoCondensed(
+                                fontSize: 20,
+                                color: Colors.black,
+                              ),
+                            ),
                             value: method,
                             groupValue: trainedVoiceProvider.selectedF0Method,
                             onChanged: (String? value) {

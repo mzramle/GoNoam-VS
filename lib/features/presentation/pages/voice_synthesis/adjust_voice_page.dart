@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:gonoam_v1/features/presentation/widgets/orange_button.dart';
 import 'package:gonoam_v1/provider/voice_profile_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../model/voice_profile_model.dart';
+import '../../widgets/custom_slider_widget.dart';
+import '../../widgets/custom_slider_zero_to_one_widget.dart';
+import '../../widgets/searchable_dropdown.dart';
 
 class AdjustVoiceProfilePage extends StatefulWidget {
   const AdjustVoiceProfilePage({super.key});
@@ -22,24 +23,77 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
   @override
   void initState() {
     super.initState();
+    voiceProfileProviderC = context.read<VoiceProfileProvider>();
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      voiceProfileProviderC =
-          Provider.of<VoiceProfileProvider>(context, listen: false);
-      await voiceProfileProviderC.fetchVoiceProfiles();
-      await fetchInitialData();
+      context.read<VoiceProfileProvider>().fetchVoiceProfiles();
+      setup();
     });
   }
 
+  Future<void> setup() async {
+    await voiceProfileProviderC.initialize();
+    await fetchInitialData();
+  }
+
   Future<void> fetchInitialData() async {
-    var snapshot = await FirebaseFirestore.instance
+    var querySnapshot = await FirebaseFirestore.instance
         .collection('voice_model_setting')
         .where('currentVoiceProfile', isEqualTo: 1)
-        .get()
-        .then((snapshot) => snapshot.docs.first);
-    setState(() {
-      initialData = snapshot.data();
-      voiceProfileProviderC.initializeFromData(initialData);
-    });
+        .get();
+
+    if (querySnapshot.docs.isEmpty) {
+      // Initialize with default values if no document is found
+      setState(() {
+        // Assuming voiceProfileProviderC is an instance of a class that holds your data
+        voiceProfileProviderC.models = [];
+        voiceProfileProviderC.indexes = [];
+        voiceProfileProviderC.voices = [];
+        voiceProfileProviderC.selectedModel = '';
+        voiceProfileProviderC.selectedIndex = '';
+        voiceProfileProviderC.selectedVoice = '';
+        voiceProfileProviderC.textInput = '';
+        voiceProfileProviderC.outputFile = '';
+        voiceProfileProviderC.ttsRate = 0;
+        voiceProfileProviderC.pitch = 0;
+        voiceProfileProviderC.filterRadius = 3;
+        voiceProfileProviderC.indexRate = 0.75;
+        voiceProfileProviderC.rmsMixRate = 1;
+        voiceProfileProviderC.protect = 0.5;
+        voiceProfileProviderC.hopLength = 128;
+        voiceProfileProviderC.f0method = [
+          "pm",
+          "harvest",
+          "dio",
+          "crepe",
+          "crepe-tiny",
+          "rmvpe",
+          "fcpe",
+          "hybrid[rmvpe+fcpe]",
+        ];
+        voiceProfileProviderC.selectedF0Method = "rmvpe";
+        voiceProfileProviderC.splitAudio = false;
+        voiceProfileProviderC.autotune = false;
+        voiceProfileProviderC.cleanAudio = true;
+        voiceProfileProviderC.cleanStrength = 0.5;
+        voiceProfileProviderC.upscaleAudio = false;
+        voiceProfileProviderC.outputTTSPath = '';
+        voiceProfileProviderC.outputRVCPath = '';
+        voiceProfileProviderC.exportFormat = "WAV";
+        voiceProfileProviderC.embedderModel = "contentvec";
+        voiceProfileProviderC.embedderModelCustom = null;
+        voiceProfileProviderC.searchQuery = '';
+        voiceProfileProviderC.modelName = '';
+        voiceProfileProviderC.modelLanguage = '';
+      });
+    } else {
+      // If a document is found, initialize with its data
+      var snapshot = querySnapshot.docs.first;
+      setState(() {
+        initialData = snapshot.data();
+        voiceProfileProviderC.initializeFromData(initialData);
+      });
+    }
   }
 
   DropdownButtonFormField<String> buildDropdown<T>({
@@ -50,6 +104,7 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
     required void Function(String?) onChanged,
   }) {
     return DropdownButtonFormField<String>(
+      menuMaxHeight: 250,
       decoration: InputDecoration(
         labelText: labelText,
       ),
@@ -70,29 +125,22 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
     );
   }
 
-  Widget _buildSlider(String label, double value, double min, double max,
-      int divisions, Function(double) onChanged) {
-    return Column(
-      children: [
-        Text('$label: $value'),
-        Slider(
-          label: label,
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          onChanged: onChanged,
-        ),
-      ],
-    );
-  }
-
   Widget _buildTextInputField(
       String label, String initialValue, Function(String) onChanged) {
     return TextField(
       controller: TextEditingController(text: initialValue),
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(
+        labelText: label,
+        hintStyle: GoogleFonts.robotoCondensed(
+          fontSize: 20,
+          color: Colors.black,
+        ),
+      ),
       onChanged: onChanged,
+      style: GoogleFonts.robotoCondensed(
+        fontSize: 20,
+        color: Colors.black,
+      ),
     );
   }
 
@@ -101,7 +149,14 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
     return Column(
       children: options
           .map((option) => RadioListTile<String>(
-                title: Text(option),
+                activeColor: Colors.deepOrange,
+                title: Text(
+                  option,
+                  style: GoogleFonts.robotoCondensed(
+                    fontSize: 20,
+                    color: Colors.black,
+                  ),
+                ),
                 value: option,
                 groupValue: groupValue,
                 onChanged: onChanged,
@@ -175,7 +230,7 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
                           ? const CircularProgressIndicator()
                           : Column(
                               children: [
-                                buildDropdown<String>(
+                                CustomSearchableDropdown(
                                   labelText: 'Select Model',
                                   selectedValue:
                                       voiceModelProviderC.selectedModel,
@@ -188,7 +243,7 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
                                     }
                                   },
                                 ),
-                                buildDropdown<String>(
+                                CustomSearchableDropdown(
                                   labelText: 'Select Index',
                                   selectedValue:
                                       voiceModelProviderC.selectedIndex,
@@ -201,7 +256,7 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
                                     }
                                   },
                                 ),
-                                buildDropdown<String>(
+                                CustomSearchableDropdown(
                                   labelText: 'Select Voice',
                                   selectedValue:
                                       voiceModelProviderC.selectedVoice,
@@ -228,63 +283,82 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
                                   voiceModelProviderC.modelLanguage = value;
                                 }),
                                 const SizedBox(height: 20),
-                                _buildSlider(
-                                    'TTS Rate',
-                                    voiceModelProviderC.ttsRate.toDouble(),
-                                    0,
-                                    100,
-                                    100, (newValue) {
-                                  voiceModelProviderC.ttsRate =
-                                      newValue.round();
-                                }),
-                                _buildSlider(
-                                    'Pitch',
-                                    voiceModelProviderC.pitch.toDouble(),
-                                    -100,
-                                    100,
-                                    200, (newValue) {
-                                  voiceModelProviderC.pitch = newValue;
-                                }),
-                                _buildSlider(
-                                    'Filter Radius',
-                                    voiceModelProviderC.filterRadius.toDouble(),
-                                    1,
-                                    10,
-                                    9, (newValue) {
-                                  voiceModelProviderC.filterRadius = newValue;
-                                }),
-                                _buildSlider(
-                                    'Index Rate',
-                                    voiceModelProviderC.indexRate.toDouble(),
-                                    0,
-                                    1,
-                                    1, (newValue) {
-                                  voiceModelProviderC.indexRate = newValue;
-                                }),
-                                _buildSlider(
-                                    'RMS Mix Rate',
-                                    voiceModelProviderC.rmsMixRate.toDouble(),
-                                    0,
-                                    1,
-                                    1, (newValue) {
-                                  voiceModelProviderC.rmsMixRate = newValue;
-                                }),
-                                _buildSlider(
-                                    'Protect',
-                                    voiceModelProviderC.protect.toDouble(),
-                                    0,
-                                    1,
-                                    1, (newValue) {
-                                  voiceModelProviderC.protect = newValue;
-                                }),
-                                _buildSlider(
-                                    'Hop Length',
-                                    voiceModelProviderC.hopLength.toDouble(),
-                                    64,
-                                    512,
-                                    448, (newValue) {
-                                  voiceModelProviderC.hopLength = newValue;
-                                }),
+                                CustomSliderWidget(
+                                    label: 'TTS Rate',
+                                    value:
+                                        voiceModelProviderC.ttsRate.toDouble(),
+                                    min: 0,
+                                    max: 100,
+                                    divisions: 100,
+                                    onChanged: (newValue) {
+                                      voiceModelProviderC.ttsRate =
+                                          newValue.round();
+                                    }),
+                                CustomSliderWidget(
+                                    label: 'Pitch',
+                                    value: voiceModelProviderC.pitch.toDouble(),
+                                    min: -100,
+                                    max: 100,
+                                    divisions: 200,
+                                    onChanged: (newValue) {
+                                      voiceModelProviderC.pitch = newValue;
+                                    }),
+                                CustomSliderWidget(
+                                    label: 'Filter Radius',
+                                    value: voiceModelProviderC.filterRadius
+                                        .toDouble(),
+                                    min: 1,
+                                    max: 10,
+                                    divisions: 9,
+                                    onChanged: (newValue) {
+                                      voiceModelProviderC.filterRadius =
+                                          newValue;
+                                    }),
+                                CustomSliderZeroToOneWidget(
+                                  label: 'Index Rate',
+                                  value:
+                                      voiceModelProviderC.indexRate.toDouble(),
+                                  min: 0,
+                                  max: 1,
+                                  divisions: 0.5,
+                                  increment: 0.05,
+                                  onChanged: (newValue) {
+                                    voiceModelProviderC.indexRate = newValue;
+                                  },
+                                ),
+                                CustomSliderZeroToOneWidget(
+                                  label: 'RMS Mix Rate',
+                                  value:
+                                      voiceModelProviderC.rmsMixRate.toDouble(),
+                                  min: 0,
+                                  max: 1,
+                                  divisions: 1,
+                                  increment: 0.05,
+                                  onChanged: (newValue) {
+                                    voiceModelProviderC.rmsMixRate = newValue;
+                                  },
+                                ),
+                                CustomSliderZeroToOneWidget(
+                                  label: "Protect",
+                                  value: voiceModelProviderC.protect.toDouble(),
+                                  min: 0,
+                                  max: 1,
+                                  divisions: 0.5,
+                                  increment: 0.05,
+                                  onChanged: (newValue) {
+                                    voiceModelProviderC.protect = newValue;
+                                  },
+                                ),
+                                CustomSliderWidget(
+                                    label: 'Hop Length',
+                                    value: voiceModelProviderC.hopLength
+                                        .toDouble(),
+                                    min: 64,
+                                    max: 512,
+                                    divisions: 448,
+                                    onChanged: (newValue) {
+                                      voiceModelProviderC.hopLength = newValue;
+                                    }),
                                 _buildRadioButtons(
                                     voiceModelProviderC.selectedF0Method,
                                     voiceModelProviderC.f0method, (newValue) {
@@ -301,10 +375,20 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
                                 }),
                                 const SizedBox(height: 20),
                                 _buildButton('Update Voice Model Profile', () {
+                                  // voiceProfileProviderC
+                                  //     .setAllowTTSExecution(false);
+                                  // voiceProfileProviderC
+                                  //     .updateTrainedVoiceModelSetting()
+                                  //     .then((_) {
+                                  //   // Reset the flag or perform other actions
+                                  //   voiceProfileProviderC
+                                  //       .setAllowTTSExecution(true);
+                                  // });
                                   voiceModelProviderC
                                       .updateTrainedVoiceModelSetting();
-                                  setState(
-                                      () {}); // Refresh the page after update
+                                  setState(() {
+                                    fetchInitialData();
+                                  }); // Refresh the page after update
                                 }),
                                 const SizedBox(height: 80),
                               ],
@@ -369,6 +453,14 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
                       icon: Icon(Icons.check_circle_rounded,
                           color: Colors.teal[900]),
                       onPressed: () {
+                        // In adjust_voice_page.dart, before calling selectProfileAsCurrent
+                        // voiceProfileProviderC.setAllowTTSExecution(false);
+                        // voiceProfileProviderC
+                        //     .selectProfileAsCurrent(profile)
+                        //     .then((_) {
+                        //   // Reset the flag or perform other actions
+                        //   voiceProfileProviderC.setAllowTTSExecution(true);
+                        // });
                         voiceModelProviderC.selectProfileAsCurrent(profile);
                         Navigator.of(context).pop();
                         setState(() {
@@ -834,7 +926,7 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
 //     );
 //   }
 
-//   Widget _buildSlider(String label, double value, double min, double max,
+//   Widget CustomSliderWidget(String label, double value, double min, double max,
 //       int divisions, Function(double) onChanged) {
 //     return Column(
 //       children: [
@@ -990,7 +1082,7 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
 //                                 voiceModelProviderC.modelLanguage = value;
 //                               }),
 //                               const SizedBox(height: 20),
-//                               _buildSlider(
+//                               CustomSliderWidget(
 //                                   'TTS Rate',
 //                                   voiceModelProviderC.ttsRate.toDouble(),
 //                                   0,
@@ -998,7 +1090,7 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
 //                                   100, (newValue) {
 //                                 voiceModelProviderC.ttsRate = newValue.round();
 //                               }),
-//                               _buildSlider(
+//                               CustomSliderWidget(
 //                                   'Pitch',
 //                                   voiceModelProviderC.pitch.toDouble(),
 //                                   -100,
@@ -1006,7 +1098,7 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
 //                                   200, (newValue) {
 //                                 voiceModelProviderC.pitch = newValue;
 //                               }),
-//                               _buildSlider(
+//                               CustomSliderWidget(
 //                                   'Filter Radius',
 //                                   voiceModelProviderC.filterRadius.toDouble(),
 //                                   1,
@@ -1014,7 +1106,7 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
 //                                   9, (newValue) {
 //                                 voiceModelProviderC.filterRadius = newValue;
 //                               }),
-//                               _buildSlider(
+//                               CustomSliderWidget(
 //                                   'Index Rate',
 //                                   voiceModelProviderC.indexRate.toDouble(),
 //                                   0,
@@ -1022,7 +1114,7 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
 //                                   1, (newValue) {
 //                                 voiceModelProviderC.indexRate = newValue;
 //                               }),
-//                               _buildSlider(
+//                               CustomSliderWidget(
 //                                   'RMS Mix Rate',
 //                                   voiceModelProviderC.rmsMixRate.toDouble(),
 //                                   0,
@@ -1030,7 +1122,7 @@ class _AdjustVoiceProfilePageState extends State<AdjustVoiceProfilePage> {
 //                                   1, (newValue) {
 //                                 voiceModelProviderC.rmsMixRate = newValue;
 //                               }),
-//                               _buildSlider(
+//                               CustomSliderWidget(
 //                                   'Protect',
 //                                   voiceModelProviderC.protect.toDouble(),
 //                                   0,

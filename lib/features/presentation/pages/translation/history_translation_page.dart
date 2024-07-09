@@ -50,38 +50,49 @@ class _HistoryTranslationPageState extends State<HistoryTranslationPage> {
         onRefresh: () async {
           await historyProvider.fetchTranslationHistory();
         },
-        child: Consumer<HistoryTranslationProvider>(
-          builder: (context, provider, child) {
-            if (provider.translations.isEmpty) {
-              return const Center(child: Text('No translation history found.'));
-            } else {
-              return ListView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: provider.translations.length,
-                itemBuilder: (context, index) {
-                  final translation = provider.translations[index];
-                  return TranslationBox(
-                    translation: translation,
-                    isSelected: _selectedTranslations.contains(translation.id),
-                    onFavorite: () async {
-                      await provider.confirmToggleFavorite(
-                          context, translation);
-                      setState(() {});
-                    },
-                    onSelect: (isSelected) {
-                      setState(() {
-                        if (isSelected ?? false) {
-                          _selectedTranslations.add(translation.id);
-                        } else {
-                          _selectedTranslations.remove(translation.id);
-                        }
-                      });
-                    },
-                  );
+        child: Column(
+          children: [
+            Expanded(
+              child: Consumer<HistoryTranslationProvider>(
+                builder: (context, provider, child) {
+                  if (provider.translations.isEmpty) {
+                    return const Center(
+                        child: Text('No translation history found.'));
+                  } else {
+                    return ListView.builder(
+                      padding: const EdgeInsets.all(16.0),
+                      itemCount: provider.translations.length,
+                      itemBuilder: (context, index) {
+                        final translation = provider.translations[index];
+                        return TranslationBox(
+                          translation: translation,
+                          isSelected:
+                              _selectedTranslations.contains(translation.id),
+                          onFavorite: () async {
+                            await provider.confirmToggleFavorite(
+                                context, translation);
+                            setState(() {});
+                          },
+                          onSelect: (isSelected) {
+                            setState(
+                              () {
+                                if (isSelected ?? false) {
+                                  _selectedTranslations.add(translation.id);
+                                } else {
+                                  _selectedTranslations.remove(translation.id);
+                                }
+                              },
+                            );
+                          },
+                        );
+                      },
+                    );
+                  }
                 },
-              );
-            }
-          },
+              ),
+            ),
+            const SizedBox(height: 120.0),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(

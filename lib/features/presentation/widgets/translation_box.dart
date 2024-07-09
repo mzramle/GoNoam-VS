@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:gonoam_v1/provider/voice_profile_provider.dart';
+import 'package:provider/provider.dart';
 import '../../../model/translation_model.dart';
 
 class TranslationBox extends StatefulWidget {
@@ -20,8 +23,20 @@ class TranslationBox extends StatefulWidget {
 }
 
 class _TranslationBoxState extends State<TranslationBox> {
+  // late VoiceProfileProvider voiceProfileProvider;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     context.read<VoiceProfileProvider>().fetchVoiceModelDataStream();
+  //     voiceProfileProvider = context.read<VoiceProfileProvider>();
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
+    final voiceProfileProvider = Provider.of<VoiceProfileProvider>(context);
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(12.0),
@@ -44,24 +59,106 @@ class _TranslationBoxState extends State<TranslationBox> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  widget.translation.sourceLanguage,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8.0),
-                Text(
-                  widget.translation.originalText,
-                  style: TextStyle(color: Colors.blue[900]),
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          widget.translation.sourceLanguage,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8.0),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.translation.originalText,
+                            style: TextStyle(color: Colors.blue[900]),
+                          ),
+                        ),
+                        IconButton(
+                          alignment: AlignmentDirectional.bottomEnd,
+                          tooltip: 'Copy?',
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(
+                                    text: widget.translation.originalText))
+                                .then((value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Copied to Clipboard')),
+                              );
+                            });
+                          },
+                          icon: const Icon(Icons.copy, color: Colors.blue),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            // voiceProfileProvider.setAllowTTSExecution(true);
+                            // voiceProfileProvider
+                            //     .executeTTS(widget.translation.originalText,
+                            //         widget.translation.sourceLanguage)
+                            //     .then((_) {
+                            //   // Reset the flag or perform other actions
+                            //   voiceProfileProvider.setAllowTTSExecution(false);
+                            // });
+                            voiceProfileProvider.executeTTS(
+                                widget.translation.originalText,
+                                widget.translation.sourceLanguage);
+                          },
+                          icon: const Icon(Icons.volume_up, color: Colors.blue),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
                 const Divider(color: Colors.black),
-                Text(
-                  widget.translation.targetLanguage,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8.0),
-                Text(
-                  widget.translation.translatedText,
-                  style: TextStyle(color: Colors.orange[800]),
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          widget.translation.targetLanguage,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8.0),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.translation.translatedText,
+                            style: TextStyle(color: Colors.orange[800]),
+                          ),
+                        ),
+                        IconButton(
+                          alignment: AlignmentDirectional.bottomEnd,
+                          tooltip: 'Copy?',
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(
+                                    text: widget.translation.translatedText))
+                                .then((value) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Copied to Clipboard')),
+                              );
+                            });
+                          },
+                          icon: const Icon(Icons.copy, color: Colors.blue),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            voiceProfileProvider.executeTTS(
+                                widget.translation.translatedText,
+                                widget.translation.targetLanguage);
+                          },
+                          icon: const Icon(Icons.volume_up, color: Colors.blue),
+                        ),
+                      ],
+                    )
+                  ],
                 ),
               ],
             ),

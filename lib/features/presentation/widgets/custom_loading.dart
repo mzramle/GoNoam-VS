@@ -6,6 +6,7 @@ class CustomLoadingTranslate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Lottie.asset('assets/lottie/loading.json', width: 100);
+    return Lottie.asset('assets/lottie/translation_load.json',
+        width: 200, height: 150);
   }
 }

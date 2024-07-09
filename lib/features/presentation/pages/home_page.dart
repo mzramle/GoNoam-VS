@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:gonoam_v1/features/presentation/widgets/orange_button.dart';
+import 'package:gonoam_v1/helper/toast.dart';
+import 'package:gonoam_v1/provider/voice_profile_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -22,28 +24,67 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late FlutterTts flutterTts = FlutterTts();
+  // late FlutterTts flutterTts = FlutterTts();
   late Size mq;
+
+  late TranslateProvider translateProvider;
+  late VoiceSampleProvider voiceSampleProvider;
+  late VoiceProfileProvider voiceProfileProvider;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<VoiceProfileProvider>().fetchVoiceModelDataStream();
+      context.read<TranslateProvider>().resultC;
+      voiceProfileProvider = context.read<VoiceProfileProvider>();
+      translateProvider = context.read<TranslateProvider>();
+    });
   }
 
-  Future<void> _speakText(String text, String languageCode) async {
-    //voiceSampleProvider.setChosenLanguage(languageCode);
-    if (kDebugMode) {
-      print("$text $languageCode");
-    }
-    await flutterTts.setLanguage(languageCode);
-    await flutterTts.setPitch(1);
-    await flutterTts.speak(text);
-    await flutterTts.awaitSpeakCompletion(true);
-  }
+  // Future<void> _speakText(String text, String languageCode) async {
+  //   //voiceSampleProvider.setChosenLanguage(languageCode);
+  //   if (kDebugMode) {
+  //     print("$text $languageCode");
+  //   }
+  //   await flutterTts.setLanguage(languageCode);
+  //   await flutterTts.setPitch(1);
+  //   await flutterTts.speak(text);
+  //   await flutterTts.awaitSpeakCompletion(true);
+  // }
 
   Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();
     Get.offAllNamed('/login');
+  }
+
+  // Future<void> _decideAndExecuteTTS(String text, String languageCode) async {
+  //   try {
+  //     voiceProfileProvider
+  //         .fetchVoiceModelDataStream()
+  //         .listen((modelData) async {
+  //       if (voiceProfileProvider.allowTTSExecution && modelData.isNotEmpty) {
+  //         voiceProfileProvider.generateCurrentTTS(
+  //           textInput: text,
+  //           modelData: modelData,
+  //         );
+  //       } else {
+  //         showWarningToast('No Current Voice Profile is present.');
+  //         showWarningToast('Defaulting to Flutter TTS instead...');
+  //         _speakText(text, languageCode);
+  //       }
+  //     });
+  //   } catch (e) {
+  //     showErrorToast('Cannot Generate TTS');
+  //     showErrorToast('Error: $e');
+  //   }
+  // }
+
+  @override
+  void dispose() {
+    voiceSampleProvider.dispose();
+    translateProvider.textC.dispose();
+    super.dispose();
   }
 
   @override
@@ -136,7 +177,7 @@ class _HomePageState extends State<HomePage> {
                               const BorderRadius.all(Radius.circular(15)),
                         ),
                         child: Text(languageProvider.chosenLanguage.isEmpty
-                            ? 'Auto'
+                            ? 'English'
                             : languageProvider.chosenLanguage),
                       ),
                     ),
@@ -231,8 +272,11 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 IconButton(
                                   onPressed: () {
-                                    _speakText(translateProvider.resultC.text,
+                                    voiceProfileProvider.executeTTS(
+                                        translateProvider.resultC.text,
                                         voiceSampleProvider.chosenLanguage);
+                                    // _speakText(translateProvider.resultC.text,
+                                    //     voiceSampleProvider.chosenLanguage);
                                   },
                                   icon: const Icon(Icons.volume_up,
                                       color: Colors.blue),
@@ -283,13 +327,18 @@ class _HomePageState extends State<HomePage> {
                             // Set the recognized text as the source text
                             translateProvider.textC.text = text;
                             // Wait for the UI to update with the new text
-                            await Future.delayed(
-                                const Duration(milliseconds: 100));
+                            // await Future.delayed(
+                            //     const Duration(milliseconds: 100));
                             // Immediately trigger translation
                             await translateProvider.googleTranslate();
                             // After translation, trigger Text-to-Speech on the translated text
-                            _speakText(translateProvider.resultC.text,
+
+                            voiceProfileProvider.executeTTS(
+                                translateProvider.resultC.text,
                                 voiceSampleProvider.chosenLanguage);
+                            //generateCurrentTTS here
+                            // _speakText(translateProvider.resultC.text,
+                            //     voiceSampleProvider.chosenLanguage);
                           },
                         ),
                       ],

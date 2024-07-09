@@ -11,7 +11,7 @@ class VoiceSampleProvider extends ChangeNotifier {
   String textPassage =
       """You can fool all of the people some of the time, and some of the people all of the time, but you can't fool all of the people all of the time. 
   — Abraham Lincoln""";
-  String chosenLanguage = "";
+  String chosenLanguage = '';
   bool isRecording = false;
   String recordingTime = '00:00';
   bool isEditing = false;
