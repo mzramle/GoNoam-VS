@@ -149,10 +149,12 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gonoam_v1/features/presentation/widgets/form_container_widget.dart';
 import 'package:gonoam_v1/helper/toast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -163,8 +165,8 @@ class UserProfilePage extends StatefulWidget {
 
 class _UserProfilePageState extends State<UserProfilePage> {
   bool _isEditing = false;
-  late final TextEditingController _usernameController;
-  late final TextEditingController _emailController;
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
 
@@ -173,25 +175,26 @@ class _UserProfilePageState extends State<UserProfilePage> {
   @override
   void initState() {
     super.initState();
-    // Initialize controller values if not editing
-    _usernameController = TextEditingController(text: '');
-    _emailController = TextEditingController(text: '');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getUserData();
+    });
+  }
 
-    // Fetch user data and update controller values if not editing
-    if (!_isEditing) {
-      FirebaseFirestore.instance
+  Future<void> getUserData() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(currentUser?.uid)
-          .get()
-          .then((snapshot) {
-        if (snapshot.exists) {
-          final userData = snapshot.data() as Map<String, dynamic>;
-          setState(() {
-            _usernameController.text = userData['username'];
-            _emailController.text = userData['email'];
-          });
-        }
-      });
+          .get();
+      if (snapshot.exists) {
+        final userData = snapshot.data() as Map<String, dynamic>;
+        setState(() {
+          _usernameController.text = userData['username'] ?? '';
+          _emailController.text = userData['email'] ?? '';
+        });
+      }
+    } catch (e) {
+      showErrorToast('Failed to fetch user data: $e');
     }
   }
 
@@ -212,25 +215,30 @@ class _UserProfilePageState extends State<UserProfilePage> {
         return;
       }
 
-      // Validate current password by reauthenticating
-      final credential = EmailAuthProvider.credential(
+      AuthCredential credential = EmailAuthProvider.credential(
         email: user.email!,
         password: _currentPasswordController.text,
       );
-      await user.reauthenticateWithCredential(credential);
 
-      // Update email if it has changed
+      await FirebaseAuth.instance.currentUser!
+          .reauthenticateWithCredential(credential);
+
+      if (_newPasswordController.text.isNotEmpty &&
+          _newPasswordController.text != _currentPasswordController.text) {
+        showErrorToast('New password and re-entered new password do not match');
+        return;
+      }
+
       if (_emailController.text.trim() != user.email) {
         await user.verifyBeforeUpdateEmail(_emailController.text.trim());
         await user.sendEmailVerification();
       }
 
-      // Update password if new password is provided
+      // Update password only if new password is entered
       if (_newPasswordController.text.isNotEmpty) {
         await user.updatePassword(_newPasswordController.text);
       }
 
-      // Update Firestore document
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
@@ -245,6 +253,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
         showErrorToast('Invalid current password');
       } else {
         showErrorToast('Failed to update user profile: ${e.message}');
+        if (kDebugMode) {
+          print("Error in updattuing the dodfn : $e");
+        }
       }
     } catch (e) {
       showErrorToast('An unexpected error occurred: $e');
@@ -288,7 +299,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('users')
-            .doc(currentUser?.uid) // Use uid instead of email
+            .doc(currentUser?.uid)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -308,7 +319,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
             children: [
               FormContainerWidget(
                 controller: _usernameController,
-                hintText: _isEditing ? "Username" : userData["username"],
+                hintText: _isEditing
+                    ? userData["username"] ?? "Username"
+                    : userData["username"],
                 isPasswordField: false,
                 enabled: _isEditing,
                 fieldName: "Username",
@@ -316,7 +329,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
               const SizedBox(height: 10),
               FormContainerWidget(
                 controller: _emailController,
-                hintText: _isEditing ? "Email" : userData["email"],
+                hintText: _isEditing
+                    ? userData["email"] ?? "Email"
+                    : userData["email"],
                 isPasswordField: false,
                 enabled: _isEditing,
                 fieldName: "Email",
@@ -325,29 +340,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
               if (_isEditing) ...[
                 FormContainerWidget(
                   controller: _currentPasswordController,
-                  hintText: "Current Password",
-                  isPasswordField: true,
-                  enabled: true,
-                  fieldName: "Current Password",
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your current password';
-                    }
-                    // Add validation for current password
-                    // Example: Check if the current password matches with the user's actual password
-                    // If not, return an error message
-                    // If it matches, return null
-                    // For simplicity, we're not implementing the actual validation logic here
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                FormContainerWidget(
-                  controller: _newPasswordController,
                   hintText: "New Password",
                   isPasswordField: true,
                   enabled: true,
                   fieldName: "New Password",
+                ),
+                const SizedBox(height: 10),
+                FormContainerWidget(
+                  controller: _newPasswordController,
+                  hintText: "Re-enter again New Password",
+                  isPasswordField: true,
+                  enabled: true,
+                  fieldName: "Re-enter again New Password",
                 ),
                 const SizedBox(height: 20),
               ],
