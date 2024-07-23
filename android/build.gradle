@@ -1,3 +1,9 @@
+ext {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = sourceCompatibility
+    targetCompatibility1 = JavaVersion.VERSION_17
+    targetCompatibility2 = JavaVersion.VERSION_17
+}
 allprojects {
     repositories {
         google()

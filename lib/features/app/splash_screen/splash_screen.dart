@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-
 import '../../../helper/global.dart';
 
 class SplashScreen extends StatefulWidget {
-  final Widget? child;
-  const SplashScreen({super.key, this.child});
+  final Function? onInitializationComplete;
+
+  const SplashScreen({super.key, this.onInitializationComplete});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -13,28 +13,47 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => widget.child!),
-          (route) => false);
-    });
     super.initState();
+    _navigateToNextScreen();
+  }
+
+  void _navigateToNextScreen() async {
+    await Future.delayed(const Duration(seconds: 3));
+
+    if (widget.onInitializationComplete != null) {
+      widget.onInitializationComplete!();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     mq = MediaQuery.sizeOf(context);
 
-    return const Scaffold(
-      body: Center(
-        child: Text(
-          "Welcome To GoNoam",
-          style: TextStyle(
-            color: Colors.blue,
-            fontWeight: FontWeight.bold,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  'assets/images/GoNoam_bg_L.png',
+                  fit: BoxFit.cover,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Welcome To GoNoam",
+                  style: TextStyle(
+                    color: Colors.indigoAccent,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
