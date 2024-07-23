@@ -56,8 +56,6 @@ class TranslationModel {
   final String translatedText;
   final String sourceLanguage;
   final String targetLanguage;
-  final String sourceCountry;
-  final String targetCountry;
   final DateTime creationTime;
   bool favorite;
 
@@ -67,8 +65,6 @@ class TranslationModel {
     required this.translatedText,
     required this.sourceLanguage,
     required this.targetLanguage,
-    required this.sourceCountry,
-    required this.targetCountry,
     required this.creationTime,
     this.favorite = false,
   });
@@ -81,8 +77,6 @@ class TranslationModel {
       translatedText: data['translatedText'] ?? '',
       sourceLanguage: data['sourceLanguage'] ?? '',
       targetLanguage: data['targetLanguage'] ?? '',
-      sourceCountry: data['sourceCountry'] ?? '',
-      targetCountry: data['targetCountry'] ?? '',
       creationTime: (data['creationTime'] as Timestamp).toDate(),
       favorite: data['favorite'] ?? false,
     );
@@ -94,8 +88,6 @@ class TranslationModel {
       'translatedText': translatedText,
       'sourceLanguage': sourceLanguage,
       'targetLanguage': targetLanguage,
-      'sourceCountry': sourceCountry,
-      'targetCountry': targetCountry,
       'creationTime': creationTime,
       'favorite': favorite,
     };

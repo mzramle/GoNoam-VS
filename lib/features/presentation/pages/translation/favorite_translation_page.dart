@@ -107,10 +107,10 @@ class _FavoriteTranslationPageState extends State<FavoriteTranslationPage> {
   void _toggleSelectAll(List<String> translationIds) {
     setState(() {
       if (_selectedTranslations.length == translationIds.length) {
-        _selectedTranslations.clear(); // Clear all selections
+        _selectedTranslations.clear();
       } else {
         _selectedTranslations.clear();
-        _selectedTranslations.addAll(translationIds); // Select all translations
+        _selectedTranslations.addAll(translationIds);
       }
     });
   }

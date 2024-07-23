@@ -15,8 +15,7 @@ class VoiceSampleProvider extends ChangeNotifier {
   bool isRecording = false;
   String recordingTime = '00:00';
   bool isEditing = false;
-  final File _recordedFile = File(
-      ''); // Assuming _recordedFile is the private variable holding the recorded file.
+  final File _recordedFile = File('');
   File get recordedFile => _recordedFile;
   bool get hasRecordedSample => recordedFile.existsSync();
   String directoryPath = '/storage/emulated/0/Download/voice_samples/';
@@ -112,7 +111,6 @@ class VoiceSampleProvider extends ChangeNotifier {
     }
   }
 
-  // Method to fetch voice samples
   Future<List<QueryDocumentSnapshot>> fetchVoiceSamples() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) throw Exception('User not logged in');
@@ -123,7 +121,6 @@ class VoiceSampleProvider extends ChangeNotifier {
     return data.docs;
   }
 
-// Updated deleteVoiceSample method to notify listeners
   Future<void> deleteVoiceSample(String docId) async {
     try {
       await FirebaseFirestore.instance
@@ -131,18 +128,9 @@ class VoiceSampleProvider extends ChangeNotifier {
           .doc(docId)
           .delete();
       showSuccessToast('Voice sample deleted successfully');
-      notifyListeners(); // Notify listeners to refresh the UI
+      notifyListeners();
     } catch (e) {
       showErrorToast('Cannot delete voice sample. ERROR: $e');
     }
   }
 }
-
-//   String textPassage = """Character A: "Hey, dude! How's it going?"
-// Character B: "Not too bad, man. Just chillin'. What about you?"
-// Character A: "Oh, you know, same old, same old. Nothing exciting happening."
-// Character B: "Ah, bummer. We should plan something fun this weekend!"
-// Character A: "Absolutely! Let's hit up that new burger joint everyone's been raving about."
-// Character B: "Sounds like a plan! I'm craving a juicy burger and some good company."
-// Character A: "You got it, buddy! It's gonna be epic."
-// """;

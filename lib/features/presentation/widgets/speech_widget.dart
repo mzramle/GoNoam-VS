@@ -18,7 +18,7 @@ class _SpeechWidgetState extends State<SpeechWidget> {
   late stt.SpeechToText _speechToText;
   bool _isListening = false;
   String _lastWords = '';
-  static const int _silenceTimeout = 20; // Timeout in seconds for silence
+  static const int _silenceTimeout = 20;
 
   @override
   void initState() {
@@ -66,7 +66,6 @@ class _SpeechWidgetState extends State<SpeechWidget> {
     if (result.finalResult) {
       setState(() {
         _lastWords = result.recognizedWords;
-        // Trigger the callback only when the final result is obtained
         widget.onResult(_lastWords);
         _stopListening();
       });
@@ -79,7 +78,6 @@ class _SpeechWidgetState extends State<SpeechWidget> {
 
   void _onSoundLevelChange(double level) {
     if (_isListening && level == 0.0) {
-      // If no sound is detected for a while, stop listening
       Future.delayed(const Duration(seconds: _silenceTimeout), () {
         if (_isListening = false) {
           _stopListening();

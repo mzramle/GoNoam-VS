@@ -11,15 +11,14 @@ import 'features/presentation/pages/translation/history_translation_page.dart';
 import 'features/presentation/pages/auth/login_page.dart';
 import 'features/presentation/pages/auth/sign_up_page.dart';
 import 'features/presentation/pages/user_profile/user_profile_page.dart';
-import 'package:gonoam_v1/features/presentation/pages/test_excrd/crud_page.dart';
 import 'package:gonoam_v1/features/presentation/pages/voice_synthesis/create_voice_sample_page.dart';
 import 'package:gonoam_v1/features/presentation/pages/voice_synthesis/voice_synthesis_main_page.dart';
 import 'features/presentation/pages/voice_synthesis/delete_voices_page.dart';
-import 'package:gonoam_v1/features/presentation/widgets/stt_test_widget.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'features/presentation/pages/voice_synthesis/trained_voice_library_work_page.dart';
 import 'features/presentation/widgets/app_bottom_navigation_bar.dart';
 import 'package:provider/provider.dart';
+import 'provider/user_profile_provider.dart';
 import 'provider/voice_profile_provider.dart';
 import 'provider/voice_sample_provider.dart';
 import 'provider/history_translation_provider.dart';
@@ -46,11 +45,12 @@ Future main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => VoiceSampleProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
-        ChangeNotifierProvider(create: (_) => TranslateProvider()),
         ChangeNotifierProvider(create: (_) => HistoryTranslationProvider()),
+        ChangeNotifierProvider(create: (_) => TranslateProvider()),
         ChangeNotifierProvider(create: (_) => TrainedVoiceProvider()),
+        ChangeNotifierProvider(create: (_) => UserProfileProvider()),
+        ChangeNotifierProvider(create: (_) => VoiceSampleProvider()),
         ChangeNotifierProvider(create: (_) => VoiceProfileProvider()),
       ],
       child: const MyApp(),
@@ -84,8 +84,8 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/signup', page: () => const SignUpPage()),
         GetPage(name: '/main', page: () => MainScreen()),
         GetPage(name: '/user_profile', page: () => const UserProfilePage()),
-        GetPage(name: '/stt_test', page: () => const SttTestWidget()),
-        GetPage(name: '/example_crd', page: () => const CRUDPage()),
+        // GetPage(name: '/stt_test', page: () => const SttTestWidget()),
+        // GetPage(name: '/example_crd', page: () => const CRUDPage()),
         GetPage(
             name: '/history_translation_page',
             page: () => const HistoryTranslationPage()),

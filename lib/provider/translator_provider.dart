@@ -15,6 +15,7 @@ class TranslateProvider with ChangeNotifier {
 
   String _from = '';
   String get from => _from;
+
   set from(String value) {
     _from = value;
     notifyListeners();
@@ -50,47 +51,11 @@ class TranslateProvider with ChangeNotifier {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> translate() async {
-    if (textC.text.trim().isNotEmpty && to.isNotEmpty) {
-      status = Status.loading;
-
-      String prompt = '';
-
-      if (from.isNotEmpty) {
-        prompt =
-            'Can you translate given text from $from to $to:\n${textC.text}';
-      } else {
-        prompt = 'Can you translate given text to $to:\n${textC.text}';
-      }
-
-      final res = await APIs.getAnswer(prompt);
-      resultC.text = utf8.decode(res.codeUnits);
-
-      // Save translation to Firebase
-      await _saveTranslationToFirebase(
-        originalText: textC.text,
-        translatedText: resultC.text,
-        sourceLanguage: from,
-        targetLanguage: to,
-        sourceCountry: sourceCountry,
-        targetCountry: targetCountry,
-      );
-
-      status = Status.complete;
-    } else {
-      status = Status.none;
-      if (to.isEmpty) MyDialog.info('Select To Language!');
-      if (textC.text.isEmpty) MyDialog.info('Type Something to Translate!');
-    }
-  }
-
   Future<void> _saveTranslationToFirebase({
     required String originalText,
     required String translatedText,
     required String sourceLanguage,
     required String targetLanguage,
-    required String sourceCountry,
-    required String targetCountry,
   }) async {
     try {
       final translation = TranslationModel(
@@ -98,8 +63,6 @@ class TranslateProvider with ChangeNotifier {
         translatedText: translatedText,
         sourceLanguage: sourceLanguage,
         targetLanguage: targetLanguage,
-        sourceCountry: sourceCountry,
-        targetCountry: targetCountry,
         creationTime: DateTime.now(),
       );
 
@@ -154,14 +117,12 @@ class TranslateProvider with ChangeNotifier {
         translatedText: resultC.text,
         sourceLanguage: from,
         targetLanguage: to,
-        sourceCountry: sourceCountry,
-        targetCountry: targetCountry,
       );
 
       status = Status.complete;
     } else {
       status = Status.none;
-      if (to.isEmpty) MyDialog.info('Select To Language!');
+      if (to.isEmpty) MyDialog.info('Select Target Language!');
       if (textC.text.isEmpty) {
         MyDialog.info('Type Something to Translate!');
       }

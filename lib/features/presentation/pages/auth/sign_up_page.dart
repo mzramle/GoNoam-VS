@@ -16,8 +16,6 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _isSigningUp = false;
   bool _passwordsMatch = true;
 
-  //final FirebaseAuthService _auth = FirebaseAuthService();
-
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -61,7 +59,6 @@ class _SignUpPageState extends State<SignUpPage> {
     });
 
     try {
-      //User? user = await _auth.signUpWithEmailAndPassword(email, password);
       UserCredential userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,

@@ -1,16 +1,13 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:flutter/material.dart';
 import 'package:gonoam_v1/helper/toast.dart';
 import 'package:google_fonts/google_fonts.dart';
-// ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../provider/voice_sample_provider.dart'; // For date formatting
+import '../../../../provider/voice_sample_provider.dart';
 
 class DeleteVoicesPage extends StatefulWidget {
   const DeleteVoicesPage({super.key});
@@ -57,10 +54,9 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
             itemBuilder: (context, index) {
               final doc = snapshot.data![index];
               final voiceModelSetting = doc.data() as Map<String, dynamic>;
-              // Define colors
               final bgColor = index % 2 == 0
                   ? const Color.fromARGB(255, 199, 222, 232)
-                  : const Color(0xFFFFE0E0); // Light cherry color as an example
+                  : const Color(0xFFFFE0E0);
               return Container(
                 color: bgColor,
                 child: ExpansionTile(
@@ -71,22 +67,20 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
                     onPressed: () => _deleteVoiceModel(doc.id),
                   ),
                   children: voiceModelSetting.entries.map<Widget>((entry) {
-                    // Use the utility function to format field names
                     String formattedFieldName = formatFieldName(entry.key);
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Card(
-                        elevation: 4, // Adds shadow
+                        elevation: 4,
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(10), // Rounded corners
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: ListTile(
                           title: Text(
                             '$formattedFieldName: ${entry.value}',
                             style: const TextStyle(
-                              color: Colors.deepPurple, // Custom text color
-                              fontWeight: FontWeight.bold, // Makes text bold
+                              color: Colors.deepPurple,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -103,7 +97,6 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
   }
 
   String formatFieldName(String fieldName) {
-    // Split the string by underscores, capitalize each word, and join them with spaces
     return fieldName
         .split('_')
         .map((word) => word[0].toUpperCase() + word.substring(1))
@@ -112,7 +105,6 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
 
   Future<void> moveAudioFileToAccessibleLocation(String docId) async {
     try {
-      // Fetch the document from Firestore
       DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
           .collection('voice_samples')
           .doc(docId)
@@ -135,7 +127,6 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
         return;
       }
 
-      // Determine the new location (e.g., external storage directory)
       Directory? externalDir = await getExternalStorageDirectory();
       if (externalDir == null) {
         showErrorToast('External storage directory not found');
@@ -145,9 +136,6 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
       String newFilePath =
           '${externalDir.path}/${originalFile.uri.pathSegments.last}';
       await originalFile.copy(newFilePath);
-
-      // Optionally, delete the original file
-      // await originalFile.delete();
 
       showNormalToast('File moved to $newFilePath');
     } catch (e) {
@@ -199,9 +187,7 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
                               fontSize: 24, fontWeight: FontWeight.bold)),
                     ),
                     const Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal:
-                              45.0), // Adjust the horizontal padding as needed
+                      padding: EdgeInsets.symmetric(horizontal: 45.0),
                       child: Divider(color: Colors.black),
                     ),
                     Expanded(
@@ -283,9 +269,7 @@ class _DeleteVoicesPageState extends State<DeleteVoicesPage> {
                         style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.bold)),
                     const Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal:
-                              45.0), // Adjust the horizontal padding as needed
+                      padding: EdgeInsets.symmetric(horizontal: 45.0),
                       child: Divider(color: Colors.black),
                     ),
                     Expanded(child: _buildVoiceModelList()),

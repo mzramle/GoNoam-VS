@@ -90,15 +90,8 @@ class _RecorderState extends State<Recorder> with AudioRecorderMixin {
         if (!await _isEncoderSupported(encoder)) {
           return;
         }
-
-        // final devs = await _audioRecorder.listInputDevices();
-        // debugPrint(devs.toString());
-
         const config = RecordConfig(encoder: encoder, numChannels: 1);
         await _audioRecorder.start(config, path: filePath);
-
-        // Record to stream
-        // await recordStream(_audioRecorder, config);
         _recordDuration = 0;
         _startTimer();
       }

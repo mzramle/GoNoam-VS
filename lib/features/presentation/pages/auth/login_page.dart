@@ -44,10 +44,6 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Image.asset(
-                    //   'assets/images/GoNoam_logo_L_cropped.png',
-                    //   fit: BoxFit.cover,
-                    // ),
                     const CustomSplashGlobalTranslate(),
                     const SizedBox(height: 20),
                     Text("Welcome!",

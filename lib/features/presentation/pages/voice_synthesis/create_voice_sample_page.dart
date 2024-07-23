@@ -25,8 +25,6 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
 
   bool showPlayer = false;
   String? audioPath;
-  // final voiceSampleController = VoiceSampleController();
-
   final TextEditingController _voiceSampleNameController =
       TextEditingController();
   final TextEditingController _textPassageController = TextEditingController();
@@ -144,18 +142,6 @@ class _CreateVoiceSamplePageState extends State<CreateVoiceSamplePage> {
               ),
             ),
             const SizedBox(height: 20),
-            // ElevatedButton(
-            //   onPressed: () async {
-            //     String? selectedDirectory =
-            //         await FilePicker.platform.getDirectoryPath();
-            //     if (selectedDirectory != null) {
-            //       setState(() {
-            //         saveDirectoryPath = selectedDirectory;
-            //       });
-            //     }
-            //   },
-            //   child: Text('Select Save Directory: ${saveDirectoryPath ?? ''}'),
-            // ),
             const SizedBox(height: 20),
             const Text(
               'Record Voice Sample',

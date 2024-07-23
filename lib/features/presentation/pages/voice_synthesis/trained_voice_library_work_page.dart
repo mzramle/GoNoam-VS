@@ -23,8 +23,6 @@ class _TrainedVoiceLibraryWorkState extends State<TrainedVoiceLibraryWork> {
     super.initState();
     setup();
     context.read<TrainedVoiceProvider>().initialize();
-
-    // WidgetsBinding.instance.addPostFrameCallback((_) async {});
   }
 
   Future<void> setup() async {
@@ -273,10 +271,7 @@ class _TrainedVoiceLibraryWorkState extends State<TrainedVoiceLibraryWork> {
                         trainedVoiceProvider.saveTrainedVoiceModelSetting,
                   ),
                   const SizedBox(height: 20),
-                  if (trainedVoiceProvider.outputFile.isNotEmpty) ...[
-                    // const Text('Success!'),
-                    // Text(trainedVoiceProvider.outputFile),
-                  ],
+                  if (trainedVoiceProvider.outputFile.isNotEmpty) ...[],
                 ],
               );
             },

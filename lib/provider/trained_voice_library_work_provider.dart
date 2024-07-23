@@ -229,8 +229,8 @@ class TrainedVoiceProvider extends ChangeNotifier {
   // }
 
   Future<void> fetchModels() async {
-    final response =
-        await http.get(Uri.parse('http://10.213.96.76:5000/models'));
+    final response = await http.get(Uri.parse(
+        'http://10.160.40.241:5000/models')); // Change to the server's IP address in runLocalTTS batch file
     if (response.statusCode == 200) {
       models = List<String>.from(json.decode(response.body));
       notifyListeners();
@@ -238,8 +238,8 @@ class TrainedVoiceProvider extends ChangeNotifier {
   }
 
   Future<void> fetchIndexes() async {
-    final response =
-        await http.get(Uri.parse('http://10.213.96.76:5000/indexes'));
+    final response = await http.get(Uri.parse(
+        'http://10.160.40.241:5000/indexes')); // Change to the server's IP address in runLocalTTS batch file
     if (response.statusCode == 200) {
       indexes = List<String>.from(json.decode(response.body));
       notifyListeners();
@@ -247,8 +247,8 @@ class TrainedVoiceProvider extends ChangeNotifier {
   }
 
   Future<void> fetchVoices() async {
-    final response =
-        await http.get(Uri.parse('http://10.213.96.76:5000/voices'));
+    final response = await http.get(Uri.parse(
+        'http://10.160.40.241:5000/voices')); // Change to the server's IP address in runLocalTTS batch file
     if (response.statusCode == 200) {
       final List<dynamic> responseData = json.decode(response.body)['voices'];
       voices = responseData.map((voice) {
@@ -273,7 +273,7 @@ class TrainedVoiceProvider extends ChangeNotifier {
     } else {
       try {
         final response = await http.post(
-          Uri.parse('http://10.213.96.76:5000/tts'),
+          Uri.parse('http://10.160.40.241:5000/tts'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },

@@ -37,7 +37,7 @@ class _CustomSearchableDropdownState extends State<CustomSearchableDropdown> {
   @override
   void dispose() {
     searchController.dispose();
-    searchFocusNode.dispose(); // Don't forget to dispose of the FocusNode
+    searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -119,7 +119,6 @@ class _CustomSearchableDropdownState extends State<CustomSearchableDropdown> {
                       borderRadius: BorderRadius.all(Radius.circular(25.0)),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      // Step 3: Customize the appearance when focused
                       borderSide: BorderSide(color: Colors.blue, width: 2.0),
                       borderRadius: BorderRadius.all(Radius.circular(25.0)),
                     ),
@@ -127,7 +126,7 @@ class _CustomSearchableDropdownState extends State<CustomSearchableDropdown> {
                 ),
               ),
               SizedBox(
-                height: 6 * 48.0, // Adjust the height for 6 lines
+                height: 6 * 48.0,
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: filteredItems.length,

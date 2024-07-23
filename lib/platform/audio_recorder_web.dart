@@ -25,7 +25,6 @@ mixin AudioRecorderMixin {
   }
 
   void downloadWebData(String path) {
-    // Simple download code for web testing
     final anchor = web.document.createElement('a') as web.HTMLAnchorElement
       ..href = path
       ..style.display = 'none'

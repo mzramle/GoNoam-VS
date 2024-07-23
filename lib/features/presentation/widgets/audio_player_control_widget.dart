@@ -58,7 +58,6 @@ class _AudioPlayerControlsState extends State<AudioPlayerControls> {
             widget.onStop();
           },
         ),
-        // Additional UI for seeking within the audio could be added here
       ],
     );
   }

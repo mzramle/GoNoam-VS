@@ -45,9 +45,6 @@ class _VoiceSynthesisMainPageState extends State<VoiceSynthesisMainPage> {
               } else if (result == 'logout') {
                 _signOut();
               }
-              // else if (result == 'settings') {
-              //   Get.toNamed('/settings');
-              // }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
@@ -58,10 +55,6 @@ class _VoiceSynthesisMainPageState extends State<VoiceSynthesisMainPage> {
                 value: 'logout',
                 child: Text('Log Out'),
               ),
-              // const PopupMenuItem<String>(
-              //   value: 'settings',
-              //   child: Text('Settings'),
-              // ),
             ],
             icon: const Icon(Icons.settings_applications_rounded,
                 color: Colors.white, size: 40),
@@ -160,7 +153,6 @@ class _VoiceSynthesisMainPageState extends State<VoiceSynthesisMainPage> {
                               snapshot.connectionState ==
                                   ConnectionState.done) {
                             if (snapshot.hasData) {
-                              // Data is available, enable the IconButton
                               return ElevatedButton(
                                 onPressed: () {},
                                 style: ElevatedButton.styleFrom(
@@ -177,7 +169,6 @@ class _VoiceSynthesisMainPageState extends State<VoiceSynthesisMainPage> {
                                     semanticLabel: 'Generate TTS',
                                   ),
                                   onPressed: () {
-                                    // Use the latest data from the stream
                                     Map<String, dynamic> voiceModelData =
                                         snapshot.data!;
                                     Provider.of<VoiceProfileProvider>(context,
@@ -190,13 +181,10 @@ class _VoiceSynthesisMainPageState extends State<VoiceSynthesisMainPage> {
                                 ),
                               );
                             } else if (snapshot.hasError) {
-                              // Handle error state
                               return Text('Error: ${snapshot.error}');
                             } else {
-                              // Data is not yet available or no data
                               return ElevatedButton(
-                                onPressed:
-                                    null, // Disable the button as there's no data
+                                onPressed: null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xff003366),
                                   shape: RoundedRectangleBorder(
@@ -212,7 +200,6 @@ class _VoiceSynthesisMainPageState extends State<VoiceSynthesisMainPage> {
                               );
                             }
                           } else {
-                            // Waiting for data
                             return const CircularProgressIndicator();
                           }
                         },
@@ -220,7 +207,7 @@ class _VoiceSynthesisMainPageState extends State<VoiceSynthesisMainPage> {
                       StreamBuilder<Map<String, dynamic>>(
                         stream: Provider.of<VoiceProfileProvider>(context,
                                 listen: false)
-                            .fetchVoiceModelDataStream(), // This method should return a Stream
+                            .fetchVoiceModelDataStream(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -245,11 +232,10 @@ class _VoiceSynthesisMainPageState extends State<VoiceSynthesisMainPage> {
                                       ),
                                     ),
                                     child: Text(
-                                      modelName, // Displaying model_name
+                                      modelName,
                                       style: const TextStyle(
                                           fontSize: 18, color: Colors.white),
-                                      overflow: TextOverflow
-                                          .ellipsis, // Handle long text
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                   const SizedBox(height: 10),
@@ -267,8 +253,7 @@ class _VoiceSynthesisMainPageState extends State<VoiceSynthesisMainPage> {
                                       modelLanguage,
                                       style: const TextStyle(
                                           fontSize: 18, color: Colors.black),
-                                      overflow: TextOverflow
-                                          .ellipsis, // Handle long text
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],

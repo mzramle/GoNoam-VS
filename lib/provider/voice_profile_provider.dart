@@ -61,7 +61,7 @@ class VoiceProfileProvider extends ChangeNotifier {
     "hybrid[rmvpe+fcpe]",
   ];
 
-  String _selectedF0Method = "rmvpe"; // group value for f0method
+  String _selectedF0Method = "rmvpe";
   String get selectedF0Method => _selectedF0Method;
   bool _splitAudio = false;
   bool get splitAudio => _splitAudio;
@@ -249,7 +249,7 @@ class VoiceProfileProvider extends ChangeNotifier {
 
   Future<void> fetchModels() async {
     final response =
-        await http.get(Uri.parse('http://10.213.96.76:5000/models'));
+        await http.get(Uri.parse('http://10.160.40.241:5000/models'));
     if (response.statusCode == 200) {
       models = List<String>.from(json.decode(response.body));
       notifyListeners();
@@ -258,7 +258,7 @@ class VoiceProfileProvider extends ChangeNotifier {
 
   Future<void> fetchIndexes() async {
     final response =
-        await http.get(Uri.parse('http://10.213.96.76:5000/indexes'));
+        await http.get(Uri.parse('http://10.160.40.241:5000/indexes'));
     if (response.statusCode == 200) {
       indexes = List<String>.from(json.decode(response.body));
       notifyListeners();
@@ -267,7 +267,7 @@ class VoiceProfileProvider extends ChangeNotifier {
 
   Future<void> fetchVoices() async {
     final response =
-        await http.get(Uri.parse('http://10.213.96.76:5000/voices'));
+        await http.get(Uri.parse('http://10.160.40.241:5000/voices'));
     if (response.statusCode == 200) {
       final List<dynamic> responseData = json.decode(response.body)['voices'];
       voices = responseData.map((voice) {
@@ -416,7 +416,7 @@ class VoiceProfileProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _decideAndExecuteTTS(String text, String languageCode) async {
+  Future<void> decideAndExecuteTTS(String text, String languageCode) async {
     try {
       fetchCurrentVoiceModelData().then((modelData) async {
         if (allowTTSExecution == true && modelData.isNotEmpty) {
@@ -430,17 +430,6 @@ class VoiceProfileProvider extends ChangeNotifier {
           _speakText(text, languageCode);
         }
       });
-
-      //       if (allowTTSExecution == true && modelData.isNotEmpty) {
-      //   generateCurrentTTS(
-      //     textInput: text,
-      //     modelData: modelData,
-      //   );
-      // } else {
-      //   showWarningToast('No Current Voice Profile is present.');
-      //   showWarningToast('Defaulting to Flutter TTS instead...');
-      //   _speakText(text, languageCode);
-      // }
     } catch (e) {
       showErrorToast('Cannot Generate TTS');
       showErrorToast('Error: $e');
@@ -448,11 +437,10 @@ class VoiceProfileProvider extends ChangeNotifier {
   }
 
   Future<void> executeTTS(String text, String languageCode) async {
-    await _decideAndExecuteTTS(text, languageCode);
+    await decideAndExecuteTTS(text, languageCode);
   }
 
   Future<void> _speakText(String text, String languageCode) async {
-    //voiceSampleProvider.setChosenLanguage(languageCode);
     if (kDebugMode) {
       print("$text $languageCode");
     }
@@ -474,7 +462,7 @@ class VoiceProfileProvider extends ChangeNotifier {
     } else {
       try {
         final response = await http.post(
-          Uri.parse('http://10.213.96.76:5000/tts'),
+          Uri.parse('http://10.160.40.241:5000/tts'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -549,7 +537,6 @@ class VoiceProfileProvider extends ChangeNotifier {
     }
 
     showNormalToast('Generating TTS...');
-    // Set the necessary fields based on modelData
     selectedModel = modelData['model_file'];
     selectedIndex = modelData['index_file'];
     selectedVoice = modelData['tts_voice'];
@@ -598,294 +585,3 @@ class VoiceProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-
-// ===========================================================================================================================
-// ===========================================================================================================================
-
-// import 'dart:convert';
-// import 'package:flutter/material.dart';
-// import 'package:http/http.dart' as http;
-// import 'package:cloud_firestore/cloud_firestore.dart';
-
-// class VoiceProfileProvider extends ChangeNotifier {
-//   final FirebaseFirestore _db = FirebaseFirestore.instance;
-//   List<VoiceProfile> _voiceProfiles = [];
-//   String? _selectedProfileName;
-
-//   List<VoiceProfile> get voiceProfiles => _voiceProfiles;
-//   String? get selectedProfileName => _selectedProfileName;
-
-//   List<String> models = [];
-//   List<String> indexes = [];
-//   List<TrainedVoiceModel> voices = [];
-//   late String _selectedModel;
-//   String get selectedModel => _selectedModel;
-//   late String _selectedIndex;
-//   String get selectedIndex => _selectedIndex;
-//   late String _selectedVoice;
-//   String get selectedVoice => _selectedVoice;
-
-//   String _textInput = '';
-//   String get textInput => _textInput;
-//   String _outputFile = '';
-//   String get outputFile => _outputFile;
-//   int _ttsRate = 0;
-//   int get ttsRate => _ttsRate;
-//   double _pitch = 0;
-//   double get pitch => _pitch;
-//   double _filterRadius = 3;
-//   double get filterRadius => _filterRadius;
-//   double _indexRate = 0.75;
-//   double get indexRate => _indexRate;
-//   double _rmsMixRate = 1;
-//   double get rmsMixRate => _rmsMixRate;
-//   double _protect = 0.5;
-//   double get protect => _protect;
-//   double _hopLength = 128;
-//   double get hopLength => _hopLength;
-//   List<String> f0method = [
-//     "pm",
-//     "harvest",
-//     "dio",
-//     "crepe",
-//     "crepe-tiny",
-//     "rmvpe",
-//     "fcpe",
-//     "hybrid[rmvpe+fcpe]",
-//   ];
-
-//   String _selectedF0Method = "rmvpe";
-//   String get selectedF0Method => _selectedF0Method;
-//   bool _splitAudio = false;
-//   bool get splitAudio => _splitAudio;
-//   bool _autotune = false;
-//   bool get autotune => _autotune;
-//   bool _cleanAudio = true;
-//   bool get cleanAudio => _cleanAudio;
-
-//   double _cleanStrength = 0.5;
-//   double get cleanStrength => _cleanStrength;
-//   bool _upscaleAudio = false;
-//   bool get upscaleAudio => _upscaleAudio;
-//   String _outputTTSPath = '';
-//   String get outputTTSPath => _outputTTSPath;
-//   String _outputRVCPath = '';
-//   String get outputRVCPath => _outputRVCPath;
-//   String _exportFormat = "WAV";
-//   String get exportFormat => _exportFormat;
-//   String _embedderModel = "contentvec";
-//   String get embedderModel => _embedderModel;
-//   String? _embedderModelCustom;
-//   String? get embedderModelCustom => _embedderModelCustom;
-//   String _searchQuery = '';
-//   String get searchQuery => _searchQuery;
-//   String _modelName = '';
-//   String get modelName => _modelName;
-//   String _modelLanguage = '';
-//   String get modelLanguage => _modelLanguage;
-
-//   Future<void> fetchModels() async {
-//     final response =
-//         await http.get(Uri.parse('http://10.213.96.76:5000/models'));
-//     if (response.statusCode == 200) {
-//       models = List<String>.from(json.decode(response.body));
-//       notifyListeners();
-//     }
-//   }
-
-//   Future<void> fetchIndexes() async {
-//     final response =
-//         await http.get(Uri.parse('http://10.213.96.76:5000/indexes'));
-//     if (response.statusCode == 200) {
-//       indexes = List<String>.from(json.decode(response.body));
-//       notifyListeners();
-//     }
-//   }
-
-//   Future<void> fetchVoices() async {
-//     final response =
-//         await http.get(Uri.parse('http://10.213.96.76:5000/voices'));
-//     if (response.statusCode == 200) {
-//       final List<dynamic> responseData = json.decode(response.body)['voices'];
-//       voices = responseData.map((voice) {
-//         return TrainedVoiceModel(
-//           shortName: voice['ShortName'],
-//           gender: voice['Gender'],
-//         );
-//       }).toList();
-//       notifyListeners();
-//     }
-//   }
-
-//   Future<void> fetchVoiceProfiles() async {
-//     final QuerySnapshot snapshot =
-//         await _db.collection('voice_model_setting').get();
-//     _voiceProfiles =
-//         snapshot.docs.map((doc) => VoiceProfile.fromFirestore(doc)).toList();
-//     notifyListeners();
-//   }
-
-//   void updateSelectedModel(String model) {
-//     _selectedModel = model;
-//     notifyListeners();
-//   }
-
-//   void updateSelectedIndex(String index) {
-//     _selectedIndex = index;
-//     notifyListeners();
-//   }
-
-//   void updateSelectedVoice(String voice) {
-//     _selectedVoice = voice;
-//     notifyListeners();
-//   }
-
-//   void updateTextInput(String text) {
-//     _textInput = text;
-//     notifyListeners();
-//   }
-
-//   void updateOutputFile(String file) {
-//     _outputFile = file;
-//     notifyListeners();
-//   }
-
-//   void updateTtsRate(int rate) {
-//     _ttsRate = rate;
-//     notifyListeners();
-//   }
-
-//   void updatePitch(double pitchValue) {
-//     _pitch = pitchValue;
-//     notifyListeners();
-//   }
-
-//   void updateFilterRadius(double radius) {
-//     _filterRadius = radius;
-//     notifyListeners();
-//   }
-
-//   void updateIndexRate(double rate) {
-//     _indexRate = rate;
-//     notifyListeners();
-//   }
-
-//   void updateRmsMixRate(double rate) {
-//     _rmsMixRate = rate;
-//     notifyListeners();
-//   }
-
-//   void updateProtect(double protectValue) {
-//     _protect = protectValue;
-//     notifyListeners();
-//   }
-
-//   void updateHopLength(double length) {
-//     _hopLength = length;
-//     notifyListeners();
-//   }
-
-//   void updateSelectedF0Method(String method) {
-//     _selectedF0Method = method;
-//     notifyListeners();
-//   }
-
-//   void updateSplitAudio(bool split) {
-//     _splitAudio = split;
-//     notifyListeners();
-//   }
-
-//   void updateAutotune(bool autotuneValue) {
-//     _autotune = autotuneValue;
-//     notifyListeners();
-//   }
-
-//   void updateCleanAudio(bool clean) {
-//     _cleanAudio = clean;
-//     notifyListeners();
-//   }
-
-//   void updateCleanStrength(double strength) {
-//     _cleanStrength = strength;
-//     notifyListeners();
-//   }
-
-//   void updateUpscaleAudio(bool upscale) {
-//     _upscaleAudio = upscale;
-//     notifyListeners();
-//   }
-
-//   void updateOutputTTSPath(String path) {
-//     _outputTTSPath = path;
-//     notifyListeners();
-//   }
-
-//   void updateOutputRVCPath(String path) {
-//     _outputRVCPath = path;
-//     notifyListeners();
-//   }
-
-//   void updateExportFormat(String format) {
-//     _exportFormat = format;
-//     notifyListeners();
-//   }
-
-//   void updateEmbedderModel(String model) {
-//     _embedderModel = model;
-//     notifyListeners();
-//   }
-
-//   void updateEmbedderModelCustom(String? model) {
-//     _embedderModelCustom = model;
-//     notifyListeners();
-//   }
-
-//   void updateSearchQuery(String query) {
-//     _searchQuery = query;
-//     notifyListeners();
-//   }
-
-//   void updateModelName(String name) {
-//     _modelName = name;
-//     notifyListeners();
-//   }
-
-//   void updateModelLanguage(String language) {
-//     _modelLanguage = language;
-//     notifyListeners();
-//   }
-// }
-
-// class VoiceProfile {
-//   String id;
-//   String modelName;
-//   String modelLanguage;
-//   Map<dynamic, dynamic> additionalFields;
-
-//   VoiceProfile({
-//     required this.id,
-//     required this.modelName,
-//     required this.modelLanguage,
-//     required this.additionalFields,
-//   });
-
-//   factory VoiceProfile.fromFirestore(DocumentSnapshot doc) {
-//     Map data = doc.data() as Map<String, dynamic>;
-//     return VoiceProfile(
-//       id: doc.id,
-//       modelName: data['model_name'] ?? '',
-//       modelLanguage: data['model_language'] ?? '',
-//       additionalFields: data,
-//     );
-//   }
-// }
-
-// class TrainedVoiceModel {
-//   String shortName;
-//   String gender;
-
-//   TrainedVoiceModel({
-//     required this.shortName,
-//     required this.gender,
-//   });
-// }

@@ -6,15 +6,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AudioPlayer extends StatefulWidget {
-  /// Path from where to play recorded audio
   final String source;
   final String voiceSampleName;
   final String chosenLanguage;
   final Function(
       String voiceSampleName, String chosenLanguage, String audioPath) onSave;
 
-  /// Callback when audio file should be removed
-  /// Setting this to null hides the delete button
   final VoidCallback onDelete;
 
   const AudioPlayer({

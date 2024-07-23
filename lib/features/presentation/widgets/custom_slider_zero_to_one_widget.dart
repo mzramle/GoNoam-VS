@@ -33,7 +33,6 @@ class CustomSliderZeroToOneWidget extends StatelessWidget {
           ),
         ),
         Slider(
-          // label: value.toString(),
           activeColor: Colors.blue,
           inactiveColor: Colors.blueGrey,
           thumbColor: Colors.deepOrange,

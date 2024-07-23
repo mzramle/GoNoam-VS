@@ -23,17 +23,6 @@ class TranslationBox extends StatefulWidget {
 }
 
 class _TranslationBoxState extends State<TranslationBox> {
-  // late VoiceProfileProvider voiceProfileProvider;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     context.read<VoiceProfileProvider>().fetchVoiceModelDataStream();
-  //     voiceProfileProvider = context.read<VoiceProfileProvider>();
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     final voiceProfileProvider = Provider.of<VoiceProfileProvider>(context);
@@ -95,15 +84,7 @@ class _TranslationBoxState extends State<TranslationBox> {
                         ),
                         IconButton(
                           onPressed: () {
-                            // voiceProfileProvider.setAllowTTSExecution(true);
-                            // voiceProfileProvider
-                            //     .executeTTS(widget.translation.originalText,
-                            //         widget.translation.sourceLanguage)
-                            //     .then((_) {
-                            //   // Reset the flag or perform other actions
-                            //   voiceProfileProvider.setAllowTTSExecution(false);
-                            // });
-                            voiceProfileProvider.executeTTS(
+                            voiceProfileProvider.decideAndExecuteTTS(
                                 widget.translation.originalText,
                                 widget.translation.sourceLanguage);
                           },
@@ -150,7 +131,7 @@ class _TranslationBoxState extends State<TranslationBox> {
                         ),
                         IconButton(
                           onPressed: () {
-                            voiceProfileProvider.executeTTS(
+                            voiceProfileProvider.decideAndExecuteTTS(
                                 widget.translation.translatedText,
                                 widget.translation.targetLanguage);
                           },
